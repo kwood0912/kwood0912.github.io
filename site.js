@@ -25,8 +25,9 @@ $(document).ready(function() {
 	ccBackground = $('#ccbg');
 	ccWidth = $('#ccWidth');
 	ccPadding = $('#ccPadding');
-
-
+	imgSrc = $('#imgSrc');
+	imgBg = $('#imgBg');
+	imgPadding = $('#imgPadding');
 
 
 	//set variables
@@ -83,6 +84,19 @@ $(document).ready(function() {
 	$(ccPadding).change(function() {
 		$(contentContainer).css('padding', $(this).val() + 'px');
 	});
+	$(imgSrc).change(function() {
+		var index = template.getFocusedIndex();
+		template.updateFocusedModule("src", $(this).val());
+		$('.module[index="' + index + '"] tr td img').attr("src", $(this).val());
+	});
+	$(imgBg).change(function() {
+		var index = template.getFocusedIndex();
+		template.updateFocusedModule("backgroundColor", $(this).val());
+		$('.module[index="' + index + '"]').css("background", '#' + $(this).val());
+	});
+	$(imgPadding).change(function() {
+		
+	});
 
 	$('.module-add').click(function() {
 		var module = $(this).attr('module');
@@ -93,7 +107,7 @@ $(document).ready(function() {
 				$(this).attr('selected', 'true');
 				//pull settings in the side pane
 				var index = $(this).attr('index');
-				var focusModule = template.getModule(parseInt(index));
+				var focusModule = template.setFocusedModule(parseInt(index));
 				changeSettingsView(focusModule.type);
 			}
 		});

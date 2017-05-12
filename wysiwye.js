@@ -1,4 +1,5 @@
 function wysiwye(preview) {
+	this.focusedModule = {};
 	this.modules = [];
 	this.globals = {
 		bodyBackground: '429AFF',
@@ -15,7 +16,7 @@ function wysiwye(preview) {
 			src: '',
 			backgroundColor: '#FFFFFF',
 			containerPadding: '10',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tr><td><img style="max-width: 100%" src="" /></td></tr></table>'
+			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tr><td><img style="width: 100%;max-width: 100%;" src="" /></td></tr></table>'
 		};
 	};
 	this.getDefaultText = function() {
@@ -88,10 +89,23 @@ wysiwye.prototype.getModule = function(index) {
 	return this.modules[index];
 }
 
+wysiwye.prototype.setFocusedModule = function(index) {
+	this.focusedModule = index;
+	return this.modules[this.focusedModule];
+}
+
+wysiwye.prototype.getFocusedModule = function() {
+	return this.modules[this.focusedModule];
+}
+
+wysiwye.prototype.getFocusedIndex = function() {
+	return this.focusedModule;
+}
+
 wysiwye.prototype.removeModule = function(index) {
 	this.modules.splice(index, 1);
 }
 
-wysiwye.prototype.update = function() {
-	//go through and update the preview
+wysiwye.prototype.updateFocusedModule = function(property, value) {
+	this.modules[this.focusedModule][property] = value;
 }
