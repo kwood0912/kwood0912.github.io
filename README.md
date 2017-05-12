@@ -1,2 +1,2 @@
-# kwood0912.github.io
-github pages repo
+# wysiwye
+Open source e-mail template "wysiwyg" style editor 

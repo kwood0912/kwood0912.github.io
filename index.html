@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WYSIWYE E-mail Template Creator</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript" src="jscolor.min.js"></script>
+	<script type="text/javascript" src="wysiwye.js"></script>
+	<script type="text/javascript" src="site.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="ctrl-panel">
+			<h2>Settings</h2>
+			<div class="ctrl-expando" expand-content="#expando1">
+				<div class="caret arrow-right"></div>
+				<div class="expando-text">Module Styles</div>
+			</div>
+			<div id="expando1" class="expando-content" style="height: 0px;display: none;">
+				<p class="module-settings" module="none">No module or element selected</p>
+				<div class="module-settings" style="display: none;" module="image">
+					<table class="input-table">
+						<tr>
+							<td>Image URL</td>
+							<td><input id="imgSrc" type="text" class="input" name="imgsrc" placeholder="source url"></td>
+						</tr>
+						<tr>
+							<td>Background Color</td>
+							<td><input id="imgBg" type="text" class="jscolor" name="imgbg" value="" /></td>
+						</tr>
+						<tr>
+							<td>Padding</td>
+							<td><input id="imgPadding" class="input" style="width: 30px" type="text" name="imgPadding" value="" /></td>
+						</tr>
+					</table>
+				</div>
+				<div class="module-settings" style="display: none;" module="text">
+					<table class="input-table">
+						<tr>
+							<td>Background Color</td>
+							<td><input id="txtBg" type="text" class="jscolor" name="txtbg" value="" /></td>
+						</tr>
+						<tr>
+							<td>Padding</td>
+							<td><input id="txtPadding" class="input" style="width: 30px" type="text" name="txtPadding" value="" /></td>
+						</tr>
+					</table>
+				</div>
+				<div class="module-settings" style="display: none;" module="button">
+					<table class="input-table">
+						<tr>
+							<td>Button Color</td>
+							<td><input id="btnColor" type="text" class="jscolor" name="btncolor" value="" /></td>
+						</tr>
+						<tr>
+							<td>Border Color</td>
+							<td><input id="btnBdrColor" type="text" class="jscolor" name="btnbdrcolor" value="" /></td>
+						</tr>
+						<tr>
+							<td>Font Color</td>
+							<td><input id="btnFntColor" type="text" class="jscolor" name="btnfntcolor" value="" /></td>
+						</tr>
+						<tr>
+							<td>Width</td> 
+							<td><input id="btnWidth" type="text" style="width: 30px;" name="btnwidth" value="" /></td>
+						</tr>
+						<tr>
+							<td>Height</td>
+							<td><input id="btnHeight" type="text" style="width: 30px;" name="btnheight" value="" /></td>
+						</tr>
+						<tr>
+							<td>Border Radius</td>
+							<td><input id="btnRadius" type="text" style="width: 30px;" name="btnradius" value="" /></td>
+						</tr>
+						<tr>
+							<td>Font Size</td>
+							<td><input id="btnFntSize" type="text" style="width: 30px;" name="btnfntsize" value="" /></td>
+						</tr>
+						<tr>
+							<td>Button Text</td>
+							<td><input id="btnText" type="text" name="btntext" value="" /></td>
+						</tr>
+						<tr>
+							<td>Button Url</td>
+							<td><input id="btnUrl" type="text" name="btnurl" value="" /></td>
+						</tr>
+						<tr>
+							<td>Alignment</td>
+							<td>
+								<select id="btnAlign" name="btnalign">
+									<option value="left">left</option>
+									<option value="center">center</option>
+									<option value="right">right</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>Background Color</td>
+							<td><input id="btnBg" type="text" class="jscolor" name="txtbg" value="" /></td>
+						</tr>
+						<tr>
+							<td>Padding</td>
+							<td><input id="btnPadding" class="input" style="width: 30px" type="text" name="btnPadding" value="" /></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="ctrl-expando" expand-content="#expando2">
+				<div class="caret arrow-right"></div>
+				<div class="expando-text">Add Modules</div>
+			</div>
+			<div id="expando2" class="expando-content" style="height: 0px;display: none;">
+				<div class="row">
+					<div class="column">
+						<div class="module-add" module="image">
+							IMAGE
+						</div>
+					</div>
+					<div class="column">
+						<div class="module-add" module="text">
+							TEXT
+						</div>
+					</div>
+					<div class="column">
+						<div class="module-add" module="button">
+							BUTTON
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="column">
+						<div class="module-add" module="space">
+							SPACE
+						</div>
+					</div>
+					<div class="column">
+						<div class="module-add" module="divider">
+							DIVIDER
+						</div>
+					</div>
+					<div class="column">
+						<div class="module-add" module="columns">
+							COLUMNS
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ctrl-expando" expand-content="#expando3">
+				<span class="caret arrow-right"></span>
+				<div class="expando-text">Global Styles</div>
+			</div>
+			<div id="expando3" class="expando-content" style="height: 0px;display: none;">
+				<div class="ctrl-expando" expand-content="#expando4">
+					<span class="caret arrow-right"></span>
+					<div class="expando-text">Email Body</div>
+				</div>
+				<div id="expando4" class="expand-content" style="height: 0px;display: none;">
+					<table class="input-table">
+						<tr>
+							<td><label>Background Color</label></td>
+							<td><input id="bodybg" type="text" class="jscolor" name="bodybg" value="" /></td>
+						</tr>
+						<tr>
+							<td><label>Text Color</label></td>
+							<td><input id="bodytxtc" type="text" class="jscolor" name="bodytxtc" value=""></td>
+						</tr>
+						<tr>
+							<td><label>Link Color</label></td>
+							<td><input id="bodylnkc" type="text" class="jscolor" name="bodylnkc" value=""></td>
+						</tr>
+					</table>
+					<hr>
+					<table class="input-table">
+						<tr>
+							<td><label>Font Size</label></td>
+							<td><input id="bodyfntsize" type="text" class="input" style="width: 30px" name="bodyfntsize" value=""></td>
+						</tr>
+					</table>
+				</div>
+				<div class="ctrl-expando" expand-content="#expando5">
+					<span class="caret arrow-right"></span>
+					<div class="expando-text">Content Container</div>
+				</div>
+				<div id="expando5" class="expand-content" style="height: 0px;display: none;">
+					<table class="input-table">
+						<tr>
+							<td>Width</td>
+							<td><input id="ccWidth" class="input" style="width: 30px" type="text" name="ccWidth" value="" /></td>
+						</tr>
+						<tr>
+							<td>Background Color</td>
+							<td><input id="ccbg" type="text" class="jscolor" name="ccbg" value="" /></td>
+						</tr>
+						<tr>
+							<td>Padding</td>
+							<td><input id="ccPadding" class="input" style="width: 30px" type="text" name="ccPadding" value="" /></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="content-panel">
+			<div id="body"></div>
+		</div>
+	</div>
+</body>
+</html>
