@@ -34,17 +34,16 @@ function wysiwye(preview) {
 			buttonColor: '1188E6',
 			borderColor: '1288E5',
 			fontColor: 'FFFFFF',
-			width: '200',
-			height: '15',
-			padding: '12',
 			borderRadius: '6',
 			fontSize: '16',
+			paddingTB: '12',
+			paddingLR: '24',
 			buttonText: 'Your Call-to-action',
 			href: '',
 			alignment: 'center',
 			backgroundColor: 'FFFFFF',
 			containerPadding: '10',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; text-align: center; padding: 10px;"><tr><td><a href="" target="_blank" style="background: #1188E6;border: 1px solid #1288E5;color: #FFFFFF;width: 200px; height: 15px; padding: 12px; border-radius: 6px; font-size: 16px; text-decoration: none;">Your Call-to-action</a></td></tr></table>'
+			html: '<table class="module" style="width: 100%; background: #FFFFFF; text-align: center; padding: 10px;"><tr><td><a href="" target="_blank" style="background: #1188E6;border: 1px solid #1288E5;color: #FFFFFF;padding: 12px 24px; border-radius: 6px; font-size: 16px; text-decoration: none;text-align: center;">Your Call-to-action</a></td></tr></table>'
 		};
 	};
 	this.body = preview; 
@@ -82,6 +81,7 @@ wysiwye.prototype.addModule = function(module) {
 	//add to the preview
 	$(this.moduleContainer).append(newModule.html);
 	this.modules.push(newModule);
+	this.focusedModule = index;
 	return $('table.module[index="' + index + '"]', this.moduleContainer);
 }
 
