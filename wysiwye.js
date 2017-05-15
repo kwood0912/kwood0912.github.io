@@ -14,6 +14,7 @@ function wysiwye(preview) {
 		return {
 			type: 'image',
 			src: '',
+
 			backgroundColor: '#FFFFFF',
 			containerPadding: '10',
 			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tr><td><img style="width: 100%;max-width: 100%;" src="" /></td></tr></table>'
@@ -23,9 +24,10 @@ function wysiwye(preview) {
 		return {
 			type: 'text',
 			text: 'Type something',
+			fontColor: '000000',
 			backgroundColor: 'FFFFFF',
 			containerPadding: '10',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tr><td><div style="width:100%" contenteditable="true">Type something</div></td></tr></table>'
+			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tr><td><div style="width:100%;color: #000000;" contenteditable="true">Type something</div></td></tr></table>'
 		};
 	};
 	this.getDefaultButton = function() {
