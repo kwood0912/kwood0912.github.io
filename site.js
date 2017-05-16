@@ -1,13 +1,15 @@
-var bodyBackground, bodyTextColor, bodyLinkColor, bodyFontSize, body, contentContainer, ccBackground, ccWidth, ccPadding;
+var bodyBackground, bodyTextColor, bodyLinkColor, bodyFontSize, body, contentContainer, ccBackground, ccWidth, ccPadding, ccShadow;
 var imgSrc, imgBg, imgPadding;
-var txtBg, txtPadding;
+var txtFntColor, txtFntSize, txtBg, txtPadding;
 var btnColor, btnBdrColor, btnFntColor, btnRadius, btnFntSize, btnText, btnUrl, btnAlign, btnBg, btnPaddingTB, btnPaddingLR, btnContainerPadding;
+var deleteBtn, saveBtn;
 var template = null;
 
 function changeSettingsView(module) {
 	$('.module-settings').hide();
-	if (module.type) {
+	if (module && module.type) {
 		$('.module-settings[module="' + module.type + '"]').show();
+		$(deleteBtn).show();
 		switch (module.type) {
 			case 'image':
 				$(imgSrc).val(module.src);
@@ -15,6 +17,8 @@ function changeSettingsView(module) {
 				$(imgPadding).val(module.containerPadding);
 				break;
 			case 'text':
+				$(txtFntColor).val(module.fontColor);
+				$(txtFntSize).val(module.fontSize);
 				$(txtBg).val(module.backgroundColor);
 				$(txtPadding).val(module.containerPadding);
 				break;
@@ -35,12 +39,15 @@ function changeSettingsView(module) {
 		}
 	} else {
 		$('.module-settings[module="none"]').show();
+		$(deleteBtn).hide();
 	}
 }
 
 $(document).ready(function() {
 	//initialize gui variables
 	template = new wysiwye($('#body'));
+	deleteBtn = $('#deleteBtn');
+	saveBtn = $('#saveBtn');
 	bodyBackground = $('#bodybg');
 	bodyTextColor = $('#bodytxtc');
 	bodyLinkColor = $('#bodyLinkColor');
@@ -50,9 +57,12 @@ $(document).ready(function() {
 	ccBackground = $('#ccbg');
 	ccWidth = $('#ccWidth');
 	ccPadding = $('#ccPadding');
+	ccShadow = $('#ccShadow');
 	imgSrc = $('#imgSrc');
 	imgBg = $('#imgBg');
 	imgPadding = $('#imgPadding');
+	txtFntColor = $('#txtFntColor');
+	txtFntSize = $('#txtFntSize');
 	txtBg = $('#txtBg');
 	txtPadding = $('#txtPadding');
 	btnColor = $('#btnColor');
@@ -79,6 +89,11 @@ $(document).ready(function() {
 	$(ccBackground).val(template.globals.contentContainerBackground);
 	$(ccWidth).val(template.globals.contentContainerWidth);
 	$(ccPadding).val(template.globals.contentContainerPadding);
+	if (template.globals.contentContainerShadow) {
+		$(ccShadow).attr('checked', 'true');
+	} else {
+		$(ccShadow).removeAttr('checked');
+	}
 
 	//defint event handlers
 	$('.ctrl-expando').click(function(){
@@ -104,36 +119,61 @@ $(document).ready(function() {
 		}
 	});
 
+	$(deleteBtn).click(function() {
+		template.removeFocusedModule();
+		changeSettingsView(null);
+	});
+	$(saveBtn).click(function() {
+		template.saveTemplate(function(html) {
+			var tem = html;
+		});
+	});
 	$(bodyBackground).change(function() {
+		template.updateGlobalSetting('bodyBackground', $(this).val());
 		$(body).css('background', '#' + $(this).val());
 	});
 	$(bodyTextColor).change(function() {
+		template.updateGlobalSetting('bodyTextColor', $(this).val());
 		$(body).css('color', '#' + $(this).val());
 	});
 	$(bodyLinkColor).change(function() {
+		template.updateGlobalSetting('bodyLinkColor', $(this).val());
 		$('#body a').css('color', '#' + $(this).val());
 	});
 	$(bodyFontSize).change(function() {
+		template.updateGlobalSetting('bodyFontSize', $(this).val());
 		$(body).css('font-size', $(this).val() + 'px');
 	});
 	$(ccBackground).change(function() { 
+		template.updateGlobalSetting('contentContainerBackground', $(this).val());
 		$(contentContainer).css('background', '#' + $(this).val());
 	});
 	$(ccWidth).change(function() {
+		template.updateGlobalSetting('contentContainerWidth', $(this).val());
 		$(contentContainer).css('max-width', $(this).val() + 'px');
 	});
 	$(ccPadding).change(function() {
+		template.updateGlobalSetting('contentContainerPadding', $(this).val());
 		$(contentContainer).css('padding', $(this).val() + 'px');
+	});
+	$(ccShadow).change(function() {
+		template.updateGlobalSetting('contentContainerShadow', this.checked);
+		if (this.checked) {
+			$(contentContainer).css('box-shadow', '2px 2px 3px rgba(0,0,0,0.6');
+		} else {
+			$(contentContainer).css('box-shadow', '0px 0px 0px rgba(0,0,0,0');
+		}
+		
 	});
 
 	//image parameter events
 	$(imgSrc).change(function() {
-		template.updateFocusedModule("src", $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td img').attr("src", $(this).val());
+		template.updateFocusedModule('src', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td img').attr('src', $(this).val());
 	});
 	$(imgBg).change(function() {
-		template.updateFocusedModule("backgroundColor", $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css("background", '#' + $(this).val());
+		template.updateFocusedModule('backgroundColor', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
 	});
 	$(imgPadding).change(function() {
 		template.updateFocusedModule("containerPadding", $(this).val());
@@ -141,63 +181,71 @@ $(document).ready(function() {
 	});
 
 	//text parameter events
+	$(txtFntSize).change(function() {
+		template.updateFocusedModule('fontSize', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('font-size', $(this).val() + 'px');
+	});
+	$(txtFntColor).change(function() {
+		template.updateFocusedModule('fontColor', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('color', '#' + $(this).val());
+	});
 	$(txtBg).change(function() {
-		template.updateFocusedModule("backgroundColor", $(this).val());
+		template.updateFocusedModule('backgroundColor', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
 	});
 	$(txtPadding).change(function() {
-		template.updateFocusedModule("containerPadding", $(this).val());
+		template.updateFocusedModule('containerPadding', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
 	});
 
 	//button parameter events
 	$(btnColor).change(function() {
-		template.updateFocusedModule("buttonColor", $(this).val());
+		template.updateFocusedModule('buttonColor', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("background", '#' + $(this).val());
 	});
 	$(btnBdrColor).change(function() {
-		template.updateFocusedModule("buttonColor", $(this).val());
+		template.updateFocusedModule('buttonColor', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("border", '1px solid #' + $(this).val());
 	});
 	$(btnFntColor).change(function() {
-		template.updateFocusedModule("fontColor", $(this).val());
+		template.updateFocusedModule('fontColor', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("color", '#' + $(this).val());
 	});
 	$(btnRadius).change(function() {
-		template.updateFocusedModule("borderRadius", $(this).val());
+		template.updateFocusedModule('borderRadius', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("border-radius", $(this).val() + 'px');
 	});
 	$(btnFntSize).change(function() {
-		template.updateFocusedModule("fontSize", $(this).val());
+		template.updateFocusedModule('fontSize', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("fontSize", $(this).val() + 'px');
 	});
 	$(btnText).change(function() {
-		template.updateFocusedModule("buttonText", $(this).val());
+		template.updateFocusedModule('buttonText', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').html($(this).val());
 	});
 	$(btnUrl).change(function() {
-		template.updateFocusedModule("href", $(this).val());
+		template.updateFocusedModule('href', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').attr("href", $(this).val());
 	});
 	$(btnAlign).change(function() {
-		template.updateFocusedModule("alignment", $(this).val());
+		template.updateFocusedModule('alignment', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td').css("text-align", $(this).val());
 	});
 	$(btnBg).change(function() {
-		template.updateFocusedModule("backgroundColor", $(this).val());
+		template.updateFocusedModule('backgroundColor', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"]').css("background", '#' + $(this).val());
 	});
 	$(btnPaddingTB).change(function() {
-		template.updateFocusedModule("paddingTB", $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("padding-bottom", $(this).val() + 'px').css("padding-top", $(this).val() + 'px');
+		template.updateFocusedModule('paddingTB', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css('padding-bottom', $(this).val() + 'px').css('padding-top', $(this).val() + 'px');
 	});
 	$(btnPaddingLR).change(function() {
-		template.updateFocusedModule("paddingLR", $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("padding-left", $(this).val() + 'px').css("padding-right", $(this).val() + 'px');
+		template.updateFocusedModule('paddingLR', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css('padding-left', $(this).val() + 'px').css('padding-right', $(this).val() + 'px');
 	});
 	$(btnContainerPadding).change(function() {
-		template.updateFocusedModule("containerPadding", $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css("padding", $(this).val() + 'px');
+		template.updateFocusedModule('containerPadding', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
 	});
 
 	$('.module-add').click(function() {
@@ -207,6 +255,11 @@ $(document).ready(function() {
 		$(moduleElement).attr('selected', 'true');
 		var newModule = template.getFocusedModule();
 		changeSettingsView(newModule);
+		if (module == 'text') {
+			$('tr td div[contenteditable]', moduleElement).keyup(function() {
+				template.updateFocusedModule('text', $(this).text());
+			});
+		}
 		$(moduleElement).click(function() {
 			if (!$(this).attr('selected')) {
 				$('.module').removeAttr('selected');

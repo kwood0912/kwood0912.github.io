@@ -1,5 +1,5 @@
 function wysiwye(preview) {
-	this.focusedModule = {};
+	this.focusedModule = null;
 	this.modules = [];
 	this.globals = {
 		bodyBackground: '429AFF',
@@ -8,14 +8,14 @@ function wysiwye(preview) {
 		bodyFontSize: '14',
 		contentContainerBackground: 'FFFFFF',
 		contentContainerWidth: '600',
-		contentContainerPadding: '8'
+		contentContainerPadding: '8',
+		contentContainerShadow: true
 	};
 	this. getDefaultImage = function() {
 		return {
 			type: 'image',
 			src: '',
-
-			backgroundColor: '#FFFFFF',
+			backgroundColor: 'FFFFFF',
 			containerPadding: '10',
 			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tr><td><img style="width: 100%;max-width: 100%;" src="" /></td></tr></table>'
 		};
@@ -24,6 +24,7 @@ function wysiwye(preview) {
 		return {
 			type: 'text',
 			text: 'Type something',
+			fontSize: '16',
 			fontColor: '000000',
 			backgroundColor: 'FFFFFF',
 			containerPadding: '10',
@@ -49,8 +50,9 @@ function wysiwye(preview) {
 		};
 	};
 	this.body = preview; 
-	this.html = '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" /></head><body></body></html>';
-	$(this.body).html('<center><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;" align="center"><tr valign="top"><td></td></tr></table></center>');
+	this.docHTML = '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" /></head><body><center><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tr valign="top"><td></td></tr></table></center></body></html>';
+	this.ccHTML = '<center><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tr valign="top"><td></td></tr></table></center>';
+	$(this.body).html(this.ccHTML);
 	this.contentContainer = $('center table#contentContainer', this.body);
 	this.moduleContainer = $('center table#contentContainer tr td', this.body);
 
@@ -106,8 +108,73 @@ wysiwye.prototype.getFocusedIndex = function() {
 
 wysiwye.prototype.removeModule = function(index) {
 	this.modules.splice(index, 1);
+	$('.module[index="' + this.focusedModule + '"]', this.moduleContainer).remove();
+}
+
+wysiwye.prototype.removeFocusedModule = function() {
+	if (this.focusedModule != null) {
+		this.modules.splice(this.focusedModule, 1);
+		$('.module[index="' + this.focusedModule + '"]', this.moduleContainer).remove();
+		this.focusedModule = null;
+		$('.module').each(function(i) {
+			$(this).attr('index', i);
+		});
+	}
 }
 
 wysiwye.prototype.updateFocusedModule = function(property, value) {
 	this.modules[this.focusedModule][property] = value;
+}
+
+wysiwye.prototype.updateGlobalSetting = function(property, value) {
+	this.globals[propery] = value;
+}
+
+wysiwye.prototype.saveTemplate = function(callback) {
+	var doc = $(this.docHTML);
+	for (var i = 0; i < this.modules.length; i++) {
+		var mod = this.modules[i];
+		var modElem = $(mod.html);
+		switch (mod.type) {
+			case 'image':
+				$(modElem).css({
+					'background': '#' + mod.backgroundColor,
+					'padding': mod.containerPadding + 'px'
+				});
+				$('tr td img', modElem).attr('src', mod.src);
+				break;
+			case 'text':
+				$(modElem).css({
+					'color': '#' + mod.fontColor,
+					'font-size': mod.fontSize + 'px',
+					'background': '#' + mod.backgroundColor,
+					'padding': mod.containerPadding + 'px' 
+				});
+				$('tr td div', modElem).html(mod.text);
+				$('tr td div', modElem).removeAttr('contenteditable');
+				break;
+			case 'button':
+				$(modElem).css({
+					'text-align': mod.alignment,
+					'background': '#' + mod.backgroundColor,
+					'padding': mod.containerPadding + 'px' 
+				});
+				$('tr td a', modElem).css({
+					'background': '#' + mod.buttonColor,
+					'border': '1px solid #' + mod.borderColor,
+					'border-radius': mod.borderRadius + 'px',
+					'color': '#' + mod.fontColor,
+					'font-size': mod.fontSize + 'px',
+					'padding-top': mod.paddingTB + 'px',
+					'padding-bottom': mod.paddingTB + 'px',
+					'padding-left': mod.paddingLR + 'px',
+					'padding-right': mod.paddingLR + 'px'
+				});
+				$('tr td a', modElem).html(mod.buttonText);
+				$('tr td a', modElem).attr('href', mod.href);
+				break;
+		}
+		$('center table#contentContainer tr td', doc).append($(modElem).html());
+	}
+	callback($(doc).html());
 }

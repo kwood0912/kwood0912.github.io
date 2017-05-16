@@ -37,6 +37,14 @@
 				<div class="module-settings" style="display: none;" module="text">
 					<table class="input-table">
 						<tr>
+							<td>Font Size</td>
+							<td><input id="txtFntSize" class="input" style="width: 30px" type="text" name="txtfntsize" value="" /></td>
+						</tr>
+						<tr>
+							<td>Font Color</td>
+							<td><input id="txtFntColor" type="text" class="jscolor" name="txtfntcolor" value="" /></td>
+						</tr>
+						<tr>
 							<td>Background Color</td>
 							<td><input id="txtBg" type="text" class="jscolor" name="txtbg" value="" /></td>
 						</tr>
@@ -104,6 +112,9 @@
 						</tr>
 
 					</table>
+				</div>
+				<div>
+					<button id="deleteBtn" style="display: none;">Delete Element</button>
 				</div>
 			</div>
 			<div class="ctrl-expando" expand-content="#expando2">
@@ -196,8 +207,15 @@
 							<td>Padding</td>
 							<td><input id="ccPadding" class="input" style="width: 30px" type="text" name="ccPadding" value="" /></td>
 						</tr>
+						<tr>
+							<td>Enable Shadow</td>
+							<td><input id="ccShadow" type="checkbox" name="ccshadow" class="input" checked /></td>
+						</tr>
 					</table>
 				</div>
+			</div>
+			<div>
+				<button id="saveBtn">Save Template</button>
 			</div>
 		</div>
 		<div class="content-panel">

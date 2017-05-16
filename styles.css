@@ -137,3 +137,33 @@ html, body {
 .module[selected] {
 	border: 2px solid #00F;
 }
+
+#deleteBtn {
+	background: #f55;
+	color: #fff;
+	padding: 5px 8px;
+	text-align: center;
+	margin: 5px;
+	border: 2px solid #f44;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+#deleteBtn:hover {
+	background: #f88;
+}
+
+#saveBtn {
+	background: #5cb85c;
+	color: #fff;
+	padding: 5px 8px;
+	text-align: center;
+	margin: 5px;
+	border: 2px solid #5cb85c;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+#saveBtn:hover {
+	background: #449d44;
+}
