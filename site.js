@@ -1,8 +1,10 @@
 var bodyBackground, bodyTextColor, bodyLinkColor, bodyFontSize, body, contentContainer, ccBackground, ccWidth, ccPadding, ccShadow;
 var imgSrc, imgBg, imgPadding;
-var txtFntColor, txtFntSize, txtBg, txtPadding;
+var txtFntColor, txtFntSize, txtAlign, txtBg, txtPadding;
 var btnColor, btnBdrColor, btnFntColor, btnRadius, btnFntSize, btnText, btnUrl, btnAlign, btnBg, btnPaddingTB, btnPaddingLR, btnContainerPadding;
-var deleteBtn, saveBtn;
+var spaceColor, spaceHeight;
+var divBg, divHeight, divColor, divContainerPadding;
+var deleteBtn, saveBtn, upArrowBtn, downArrowBtn;
 var template = null;
 
 function changeSettingsView(module) {
@@ -19,6 +21,7 @@ function changeSettingsView(module) {
 			case 'text':
 				$(txtFntColor).val(module.fontColor);
 				$(txtFntSize).val(module.fontSize);
+				$(txtAlign).val(module.alignment)
 				$(txtBg).val(module.backgroundColor);
 				$(txtPadding).val(module.containerPadding);
 				break;
@@ -36,6 +39,16 @@ function changeSettingsView(module) {
 				$(btnPaddingLR).val(module.paddingLR);
 				$(btnContainerPadding).val(module.containerPadding);
 				break;
+			case 'space':
+				$(spaceColor).val(module.backgroundColor);
+				$(spaceHeight).val(module.height);
+				break;
+			case 'divider':
+				$(divBg).val(module.backgroundColor);
+				$(divHeight).val(module.height);
+				$(divColor).val(module.color);
+				$(divContainerPadding).val(module.containerPadding);
+				break;
 		}
 	} else {
 		$('.module-settings[module="none"]').show();
@@ -43,11 +56,20 @@ function changeSettingsView(module) {
 	}
 }
 
+function moveArrowButtons(element) {
+	$('.arrow-btn').show();
+	var box = element.getBoundingClientRect();
+	$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
+	$('#downArrowBtn').css({ top: box.top + $('#upArrowBtn').height() + 'px', left: box.right + 'px' });
+}
+
 $(document).ready(function() {
 	//initialize gui variables
 	template = new wysiwye($('#body'));
 	deleteBtn = $('#deleteBtn');
 	saveBtn = $('#saveBtn');
+	upArrowBtn = $('#upArrowBtn');
+	downArrowBtn = $('#downArrowBtn');
 	bodyBackground = $('#bodybg');
 	bodyTextColor = $('#bodytxtc');
 	bodyLinkColor = $('#bodyLinkColor');
@@ -58,13 +80,19 @@ $(document).ready(function() {
 	ccWidth = $('#ccWidth');
 	ccPadding = $('#ccPadding');
 	ccShadow = $('#ccShadow');
+	//image gui controls
 	imgSrc = $('#imgSrc');
 	imgBg = $('#imgBg');
 	imgPadding = $('#imgPadding');
+	imgAlign = $('#imgAlign');
+	imgWidth = $('#imgWidth');
+	//text gui controls
 	txtFntColor = $('#txtFntColor');
 	txtFntSize = $('#txtFntSize');
+	txtAlign = $('#txtAlign');
 	txtBg = $('#txtBg');
 	txtPadding = $('#txtPadding');
+	//button gui controls
 	btnColor = $('#btnColor');
 	btnBdrColor = $('#btnBdrColor');
 	btnFntColor = $('#btnFntColor');
@@ -79,7 +107,14 @@ $(document).ready(function() {
 	btnPaddingTB = $('#btnPaddingTB');
 	btnPaddingLR = $('#btnPaddingLR');
 	btnContainerPadding = $('#btnContainerPadding');
-
+	//space gui controls
+	spaceColor = $('#spaceColor');
+	spaceHeight = $('#spaceHeight');
+	//divider gui controls
+	divBg = $('#divBg');
+	divHeight = $('#divHeight');
+	divColor = $('#divColor');
+	divContainerPadding = $('#divContainerPadding');
 
 	//set variables
 	$(bodyBackground).val(template.globals.bodyBackground);
@@ -94,6 +129,12 @@ $(document).ready(function() {
 	} else {
 		$(ccShadow).removeAttr('checked');
 	}
+
+	$(window).resize(function() {
+		var i = template.getFocusedIndex();
+		var fe = $('.module[index="' + i + '"]').get(0);
+		moveArrowButtons(fe);
+	});
 
 	//defint event handlers
 	$('.ctrl-expando').click(function(){
@@ -119,14 +160,71 @@ $(document).ready(function() {
 		}
 	});
 
+	$('.module-add').click(function() {
+		var module = $(this).attr('module');
+		var moduleElement = template.addModule(module);
+		$('.module').removeAttr('selected');
+		$(moduleElement).attr('selected', 'true');
+		var newModule = template.getFocusedModule();
+		changeSettingsView(newModule);
+		if (template.modules.length > 1) {
+			moveArrowButtons(moduleElement.get(0));
+		}
+		if (module == 'text') {
+			$('tr td div[contenteditable]', moduleElement).keyup(function() {
+				template.updateFocusedModule('text', $(this).text());
+			});
+		}
+		$(moduleElement).click(function() {
+			if (!$(this).attr('selected')) {
+				$('.module').removeAttr('selected');
+				$(this).attr('selected', 'true');
+				//move the up/down buttons
+				$('.arrow-btn').show();
+				var box = this.getBoundingClientRect();
+				$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
+				$('#downArrowBtn').css({ top: box.top + $('#upArrowBtn').height() + 'px', left: box.right + 'px' });
+				//pull settings in the side pane
+				var index = $(this).attr('index');
+				var focusModule = template.setFocusedModule(parseInt(index));
+				changeSettingsView(focusModule);
+			}
+		});
+	});
+
 	$(deleteBtn).click(function() {
 		template.removeFocusedModule();
 		changeSettingsView(null);
+		$('.arrow-btn').hide();
 	});
 	$(saveBtn).click(function() {
 		template.saveTemplate(function(html) {
 			var tem = html;
 		});
+	});
+	$(upArrowBtn).click(function() {
+		var i = template.getFocusedIndex();
+		if (i > 0) {
+			var fe = $('.module[index="' + i + '"]');
+			var pe = fe.prev();
+			$(fe).attr('index', i - 1);
+			$(pe).attr('index', i);
+			fe.prev().insertAfter(fe);
+			template.moveFocusedModuleUp();
+			moveArrowButtons($(fe).get(0));
+		}
+	});
+	$(downArrowBtn).click(function() {
+		var i = template.getFocusedIndex();
+		if (i < template.modules.length - 1) {
+			var fe = $('.module[index="' + i + '"]');
+			var ne = fe.next();
+			$(fe).attr('index', i + 1);
+			$(ne).attr('index', i);
+			fe.next().insertBefore(fe);
+			template.moveFocusedModuleDown();
+			moveArrowButtons($(fe).get(0));
+		}
 	});
 	$(bodyBackground).change(function() {
 		template.updateGlobalSetting('bodyBackground', $(this).val());
@@ -151,10 +249,12 @@ $(document).ready(function() {
 	$(ccWidth).change(function() {
 		template.updateGlobalSetting('contentContainerWidth', $(this).val());
 		$(contentContainer).css('max-width', $(this).val() + 'px');
+		moveArrowButtons($('.module[index="' + template.getFocusedIndex() + '"]').get(0));
 	});
 	$(ccPadding).change(function() {
 		template.updateGlobalSetting('contentContainerPadding', $(this).val());
 		$(contentContainer).css('padding', $(this).val() + 'px');
+		moveArrowButtons($('.module[index="' + template.getFocusedIndex() + '"]').get(0));
 	});
 	$(ccShadow).change(function() {
 		template.updateGlobalSetting('contentContainerShadow', this.checked);
@@ -176,10 +276,21 @@ $(document).ready(function() {
 		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
 	});
 	$(imgPadding).change(function() {
-		template.updateFocusedModule("containerPadding", $(this).val());
+		template.updateFocusedModule('containerPadding', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
 	});
-
+	$(imgWidth).change(function() {
+		template.updateFocusedModule('width', $(this).val());
+		var value = $(this).val();
+		if (value != 'auto' && value.indexOf('%') < 0) {
+			value += 'px';
+		}
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td img').css('width', value);
+	});
+	$(imgAlign).change(function() {
+		template.updateFocusedModule('alignment', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td').attr('align', $(this).val());
+	});
 	//text parameter events
 	$(txtFntSize).change(function() {
 		template.updateFocusedModule('fontSize', $(this).val());
@@ -188,6 +299,10 @@ $(document).ready(function() {
 	$(txtFntColor).change(function() {
 		template.updateFocusedModule('fontColor', $(this).val());
 		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('color', '#' + $(this).val());
+	});
+	$(txtAlign).change(function() {
+		template.updateFocusedModule('alignment', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('text-align', $(this).val());
 	});
 	$(txtBg).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
@@ -248,27 +363,22 @@ $(document).ready(function() {
 		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
 	});
 
-	$('.module-add').click(function() {
-		var module = $(this).attr('module');
-		var moduleElement = template.addModule(module);
-		$('.module').removeAttr('selected');
-		$(moduleElement).attr('selected', 'true');
-		var newModule = template.getFocusedModule();
-		changeSettingsView(newModule);
-		if (module == 'text') {
-			$('tr td div[contenteditable]', moduleElement).keyup(function() {
-				template.updateFocusedModule('text', $(this).text());
-			});
-		}
-		$(moduleElement).click(function() {
-			if (!$(this).attr('selected')) {
-				$('.module').removeAttr('selected');
-				$(this).attr('selected', 'true');
-				//pull settings in the side pane
-				var index = $(this).attr('index');
-				var focusModule = template.setFocusedModule(parseInt(index));
-				changeSettingsView(focusModule);
-			}
-		});
+	//space parameter events
+	$(spaceColor).change(function() {
+		template.updateFocusedModule('backgroundColor', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+	});
+	$(spaceHeight).change(function() {
+		template.updateFocusedModule('height', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td').css("height", $(this).val() + 'px');
+	});
+
+	//divider parameter events
+	$(divBg).change(function() {
+		template.updateFocusedModule('backgroundColor', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+	});
+	$(divHeight).change(function() {
+		
 	});
 });

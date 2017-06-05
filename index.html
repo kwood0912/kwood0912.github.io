@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>WYSIWYE E-mail Template Creator</title>
+	<link href="https://fonts.googleapis.com/css?family=Questrial" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script type="text/javascript" src="jscolor.min.js"></script>
@@ -25,6 +26,20 @@
 							<td><input id="imgSrc" type="text" class="input" name="imgsrc" placeholder="source url"></td>
 						</tr>
 						<tr>
+							<td>Width</td>
+							<td><input id="imgWidth" type="text" class="input" name="imgwidth" value="auto" style="width: 40px" /></td>
+						</tr>
+						<tr>
+							<td>Alignment</td>
+							<td>
+								<select id="imgAlign" type="text" class="input" name="imgalign">
+									<option value="left">left</option>
+									<option value="center" selected>center</option>
+									<option value="right">right</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
 							<td>Background Color</td>
 							<td><input id="imgBg" type="text" class="jscolor" name="imgbg" value="" /></td>
 						</tr>
@@ -43,6 +58,16 @@
 						<tr>
 							<td>Font Color</td>
 							<td><input id="txtFntColor" type="text" class="jscolor" name="txtfntcolor" value="" /></td>
+						</tr>
+						<tr>
+							<td>Alignment</td>
+							<td>
+								<select id="txtAlign" class="input" name="txtalign">
+									<option value="left">left</option>
+									<option value="center">center</option>
+									<option value="right">right</option>
+								</select>
+							</td>
 						</tr>
 						<tr>
 							<td>Background Color</td>
@@ -111,6 +136,38 @@
 							<td><input id="btnContainerPadding" class="input" class="input" style="width: 30px" type="text" name="btnContainerPadding" value="" /></td>
 						</tr>
 
+					</table>
+				</div>
+				<div class="module-settings" style="display: none;" module="space">
+					<table class="input-table">
+						<tr>
+							<td>Background Color</td>
+							<td><input id="spaceColor" type="text" class="jscolor" name="spacecolor" value="" /></td>
+						</tr>
+						<tr>
+							<td>Height</td>
+							<td><input id="spaceHeight" type="text" class="input" style="width: 30px" name="spaceheight" value="" /></td>
+						</tr>
+					</table>
+				</div>
+				<div class="module-settings" style="display: none;" module="divider">
+					<table class="input-table">
+						<tr>
+							<td>Background Color</td>
+							<td><input id="divBg" type="text" class="jscolor" name="divbg" value="" /></td>
+						</tr>
+						<tr>
+							<td>Height</td>
+							<td><input id="divHeight" type="text" class="input" style="width: 30px" name="divheight" value="" /></td>
+						</tr>
+						<tr>
+							<td>Color</td>
+							<td><input id="divColor" type="text" class="jscolor" name="divcolor" value="" /></td>
+						</tr>
+						<tr>
+							<td>Padding</td>
+							<td><input id="divContainerPadding" type="text" class="input" style="width: 30px" name="divcontainerpadding" value="" /></td>
+						</tr>
 					</table>
 				</div>
 				<div>
@@ -185,7 +242,7 @@
 					<table class="input-table">
 						<tr>
 							<td><label>Font Size</label></td>
-							<td><input id="bodyfntsize" type="text" class="input" style="width: 30px" name="bodyfntsize" value=""></td>
+							<td><input id="bodyFontSize" type="text" class="input" style="width: 30px" name="bodyfntsize" value=""></td>
 						</tr>
 					</table>
 				</div>
@@ -220,6 +277,8 @@
 		</div>
 		<div class="content-panel">
 			<div id="body"></div>
+			<div id="upArrowBtn" class="arrow-btn">▲</div>
+			<div id="downArrowBtn" class="arrow-btn">▼</div>
 		</div>
 	</div>
 </body>

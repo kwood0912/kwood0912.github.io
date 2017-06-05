@@ -3,6 +3,7 @@ html, body {
 	height: 100%;
 	background: #00f;
 	margin: 0px;
+	font-family: 'Questrial', sans-serif;
 }
 
 .container {
@@ -166,4 +167,21 @@ html, body {
 
 #saveBtn:hover {
 	background: #449d44;
+}
+
+.arrow-btn {
+	font-weight: bolder;
+	background: #00f;
+	color: #fff;
+	font-size: 20px;
+	position: absolute;
+	display: none;
+	height: 23px;
+	width: 23px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.arrow-btn:hover {
+	background: #44f;
 }
