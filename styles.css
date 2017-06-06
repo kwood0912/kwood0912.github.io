@@ -53,7 +53,7 @@ html, body {
 .expando-text {
 	color: #777;
 	font-size: 18px;
-	margin-top: 4px;
+	margin-top: 6px;
 }
 
 .expando-content {
@@ -184,4 +184,16 @@ html, body {
 
 .arrow-btn:hover {
 	background: #44f;
+}
+
+.module-column {
+	height: 50px;
+}
+
+.module-column:hover {
+	border: 2px solid rgba(128,0,255,0.4);
+}
+
+.module-column[selected] {
+	border: 2px solid #80f;
 }

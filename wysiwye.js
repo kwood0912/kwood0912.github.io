@@ -70,6 +70,17 @@ function wysiwye(preview) {
 			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td><div style="width: 100%; height: 4px; background: #000;"></div></td></tr></tbody></table>'
 		};
 	};
+	this.getDefaultColumns = function() {
+		return {
+			type: 'columns',
+			backgroundColor: 'FFFFFF',
+			columnCount: '2',
+			alignment: 'left',
+			containerPadding: '10',
+			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td class="module-column" style="width: 50%;"></td><td class="module-column" style="width: 50%;"></td></tr></tbody></table>'
+		};
+	};
+
 	this.body = preview; 
 	this.docHTML = '<div id="body"><center><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tbody><tr valign="top"><td></td></tr></tbody></table></center></div>';
 	this.ccHTML = '<center><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tbody><tr valign="top"><td></td></tr></tbody></table></center>';
@@ -103,6 +114,9 @@ wysiwye.prototype.addModule = function(module) {
 			break;
 		case 'divider':
 			newModule = this.getDefaultDivider();
+			break;
+		case 'columns':
+			newModule = this.getDefaultColumns();
 			break;
 	}
 	var index = this.modules.length;

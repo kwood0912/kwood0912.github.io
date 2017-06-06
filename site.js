@@ -4,6 +4,7 @@ var txtFntColor, txtFntSize, txtAlign, txtBg, txtPadding;
 var btnColor, btnBdrColor, btnFntColor, btnRadius, btnFntSize, btnText, btnUrl, btnAlign, btnBg, btnPaddingTB, btnPaddingLR, btnContainerPadding;
 var spaceColor, spaceHeight;
 var divBg, divHeight, divColor, divContainerPadding;
+var colBg, colNum, colAlign, colContainerPadding;
 var deleteBtn, saveBtn, upArrowBtn, downArrowBtn;
 var template = null;
 
@@ -49,6 +50,12 @@ function changeSettingsView(module) {
 				$(divColor).val(module.color);
 				$(divContainerPadding).val(module.containerPadding);
 				break;
+			case 'columns':
+				$(colBg).val(module.backgroundColor);
+				$(colNum).val(module.columnCount);
+				$(colAlign).val(module.alignment);
+				$(colContainerPadding).val(module.containerPadding);
+				break;
 		}
 	} else {
 		$('.module-settings[module="none"]').show();
@@ -57,10 +64,14 @@ function changeSettingsView(module) {
 }
 
 function moveArrowButtons(element) {
-	$('.arrow-btn').show();
-	var box = element.getBoundingClientRect();
-	$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
-	$('#downArrowBtn').css({ top: box.top + $('#upArrowBtn').height() + 'px', left: box.right + 'px' });
+	if (template && template.modules && template.modules.length > 1) {
+		$('.arrow-btn').show();
+		var box = element.getBoundingClientRect();
+		$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
+		$('#downArrowBtn').css({ top: box.top + $('#upArrowBtn').height() + 'px', left: box.right + 'px' });
+	} else {
+		$('.arrow-btn').hide();
+	}
 }
 
 $(document).ready(function() {
@@ -115,6 +126,11 @@ $(document).ready(function() {
 	divHeight = $('#divHeight');
 	divColor = $('#divColor');
 	divContainerPadding = $('#divContainerPadding');
+	//columns gui controls
+	colBg = $('#colBg');
+	colNum = $('#colNum');
+	colAlign = $('#colAlign');
+	colContainerPadding = $('#colContainerPadding');
 
 	//set variables
 	$(bodyBackground).val(template.globals.bodyBackground);
@@ -162,32 +178,37 @@ $(document).ready(function() {
 
 	$('.module-add').click(function() {
 		var module = $(this).attr('module');
+		var currentFocusMod = template.getFocusedModule();
 		var moduleElement = template.addModule(module);
 		$('.module').removeAttr('selected');
 		$(moduleElement).attr('selected', 'true');
 		var newModule = template.getFocusedModule();
 		changeSettingsView(newModule);
-		if (template.modules.length > 1) {
-			moveArrowButtons(moduleElement.get(0));
-		}
+		moveArrowButtons(moduleElement.get(0));
 		if (module == 'text') {
 			$('tr td div[contenteditable]', moduleElement).keyup(function() {
 				template.updateFocusedModule('text', $(this).text());
 			});
+		} else if (module == 'columns') {
+			$('tr td.module-column', moduleElement).click(function() {
+				if (!$(this).attr('selected')) {
+					$('.module-column').removeAttr('selected');
+					$(this).attr('selected', 'true');
+				}
+			});
 		}
-		$(moduleElement).click(function() {
+		$(moduleElement).click(function(e) {
 			if (!$(this).attr('selected')) {
 				$('.module').removeAttr('selected');
+				$('.module-column').removeAttr('selected');
 				$(this).attr('selected', 'true');
 				//move the up/down buttons
-				$('.arrow-btn').show();
-				var box = this.getBoundingClientRect();
-				$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
-				$('#downArrowBtn').css({ top: box.top + $('#upArrowBtn').height() + 'px', left: box.right + 'px' });
+				moveArrowButtons(this);
 				//pull settings in the side pane
 				var index = $(this).attr('index');
 				var focusModule = template.setFocusedModule(parseInt(index));
 				changeSettingsView(focusModule);
+				e.stopPropagation();
 			}
 		});
 	});
@@ -199,7 +220,11 @@ $(document).ready(function() {
 	});
 	$(saveBtn).click(function() {
 		template.saveTemplate(function(html) {
-			var tem = html;
+			if (typeof(Storage) !== 'undefined' && localStorage) {
+				localStorage.setItem('template', html);
+			} else {
+				alert('Local Storage is not supported by this browser!');
+			}
 		});
 	});
 	$(upArrowBtn).click(function() {
@@ -379,6 +404,55 @@ $(document).ready(function() {
 		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
 	});
 	$(divHeight).change(function() {
-		
+		template.updateFocusedModule('height', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('height', $(this).val() + 'px');
+	});
+	$(divColor).change(function() {
+		template.updateFocusedModule('color', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('background', '#' + $(this).val());
+	});
+	$(divContainerPadding).change(function() {
+		template.updateFocusedModule('containerPadding', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
+	});
+
+	//columns parameter events
+	$(colBg).change(function() {
+		template.updateFocusedModule('backgroundColor', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+	});
+	$(colNum).change(function() {
+		var cn = parseInt($(this).val());
+		var newWidth = 100 / cn;
+		template.updateFocusedModule('columnCount', $(this).val());
+		//manipulate columns here
+		var cc = $('.module[index="' + template.getFocusedIndex() + '"] tr td').length;
+		while (cc != cn) {
+			if (cn > cc) {
+				//add some columns
+				var newCol = $('<td class="module-column"></td>');
+				$('.module[index="' + template.getFocusedIndex() + '"] tr').append(newCol);
+				newCol.click(function() {
+					if (!$(this).attr('selected')) {
+						$('.module-column').removeAttr('selected');
+						$(this).attr('selected', 'true');
+					}
+				});
+			} else {
+				//remove some columns
+				$('.module[index="' + template.getFocusedIndex() + '"] tr td').get(cc - 1).remove();
+			}
+			cc = $('.module[index="' + template.getFocusedIndex() + '"] tr td').length;
+		}
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td').css('width', newWidth + '%');
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td').attr('align', $(colAlign).val());
+	});
+	$(colAlign).change(function() {
+		template.updateFocusedModule('alignment', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"] tr td').attr('align', $(this).val());
+	});
+	$(colContainerPadding).change(function() {
+		template.updateFocusedModule('containerPadding', $(this).val());
+		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
 	});
 });
