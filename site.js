@@ -248,12 +248,10 @@ $(document).ready(function() {
 		});
 	});
 	$(upArrowBtn).click(function() {
-		var i = template.getFocusedIndex();
+		var id = template.getFocusedIndex();
+		var 
 		if (i > 0) {
-			var fe = $('.module[index="' + i + '"]');
-			var pe = fe.prev();
-			$(fe).attr('index', i - 1);
-			$(pe).attr('index', i);
+			var fe = $('#' + i);
 			fe.prev().insertAfter(fe);
 			template.moveFocusedModuleUp();
 			moveArrowButtons($(fe).get(0));
@@ -261,11 +259,8 @@ $(document).ready(function() {
 	});
 	$(downArrowBtn).click(function() {
 		var i = template.getFocusedIndex();
-		if (i < template.modules.length - 1) {
-			var fe = $('.module[index="' + i + '"]');
-			var ne = fe.next();
-			$(fe).attr('index', i + 1);
-			$(ne).attr('index', i);
+		if (i) {
+			var fe = $('#' + i);
 			fe.next().insertBefore(fe);
 			template.moveFocusedModuleDown();
 			moveArrowButtons($(fe).get(0));
@@ -294,12 +289,12 @@ $(document).ready(function() {
 	$(ccWidth).change(function() {
 		template.updateGlobalSetting('contentContainerWidth', $(this).val());
 		$(contentContainer).css('max-width', $(this).val() + 'px');
-		moveArrowButtons($('.module[index="' + template.getFocusedIndex() + '"]').get(0));
+		moveArrowButtons($('#' + template.getFocusedIndex()).get(0));
 	});
 	$(ccPadding).change(function() {
 		template.updateGlobalSetting('contentContainerPadding', $(this).val());
 		$(contentContainer).css('padding', $(this).val() + 'px');
-		moveArrowButtons($('.module[index="' + template.getFocusedIndex() + '"]').get(0));
+		moveArrowButtons($('#' + template.getFocusedIndex()).get(0));
 	});
 	$(ccShadow).change(function() {
 		template.updateGlobalSetting('contentContainerShadow', this.checked);

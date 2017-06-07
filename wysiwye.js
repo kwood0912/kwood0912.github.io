@@ -1,4 +1,5 @@
 function wysiwye(preview) {
+	this.nextId = 0;
 	this.focusedModule = null;
 	this.modules = [];
 	this.globals = {
@@ -120,18 +121,18 @@ wysiwye.prototype.addModule = function(module) {
 			newModule = this.getDefaultColumns();
 			break;
 	}
-	var index = this.modules.length;
+	newModule.id = ++this.nextId;
 	var element = $(newModule.html);
-	$(element).attr('index', index);
+	$(element).attr('id', newModule.id);
 	newModule.html = $(element).prop('outerHTML');
 	//add to the preview
 	$(this.moduleContainer).append(newModule.html);
 	this.modules.push(newModule);
-	this.focusedModule = index;
-	return $('table.module[index="' + index + '"]', this.moduleContainer);
+	this.focusedModule = newModule.id;
+	return $('#' + newModule.id);
 }
 
-wysiwye.prototype.addColumnModule = function(module, parent) {
+wysiwye.prototype.addColumnModule = function(module, parentId) {
 	var newModule = null;
 	switch (module) {
 		case 'image': 
@@ -152,61 +153,76 @@ wysiwye.prototype.addColumnModule = function(module, parent) {
 		default:
 			return null;
 	}
-	var index = this.modules.length;
-	var parentElement = $('table.module[index="' + parent + '"] tbody tr td.module-column[selected]');
+	newModule.id = ++this.nextId;
+	var parentModule = this.getModuleById(parentId);
+	var parentElement = $('#' + parentId + ' tbody tr td.module-column[selected]');
 	var column = parentElement.index();
 	var element = $(newModule.html);
-	$(element).attr('index', index);
-	$(element).attr('parent', parent);
+	$(element).attr('id', newModule.id);
+	$(element).attr('parent-id', parentId);
 	$(element).attr('col', column);
-	newModule.parent = parent;
+	newModule.parentId = parentId;
 	newModule.column = column;
 	newModule.html = $(element).prop('outerHTML');
 	$(parentElement).append(newModule.html);
-	this.modules.push(newModule);
-	this.focusedModule = index;
-	return $('table.module[index="' + index + '"]', parentElement);
+	this.modules[this.getModuleIndexById(parentId)].subModules.push(newModule);
+	this.focusedModule = newModule.id;
+	return $('#' + newModule.id);
 }
 
-wysiwye.prototype.getModule = function(index) {
-	return this.modules[index];
+wysiwye.prototype.getModuleById = function(id) {
+	for (var i = 0; i < this.modules.length; i++) {
+		if (this.modules[i].id == id) {
+			return this.modules[i];
+		}
+	}
+	return null;
 }
 
-wysiwye.prototype.setFocusedModule = function(index) {
-	if (index > -1) {
-		this.focusedModule = index;
-		return this.modules[this.focusedModule];
+wysiwye.prototype.getModuleIndexById = function(id) {
+	for (var i = 0; i < this.modules.length; i++) {
+		if (this.modules[i].id == id) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+wysiwye.prototype.setFocusedModule = function(id) {
+	if (id > -1) {
+		this.focusedModule = id;
+		return this.getModuleById(this.focusedModule);
 	} else {
 		return null;
 	}
 }
 
 wysiwye.prototype.getFocusedModule = function() {
-	return this.modules[this.focusedModule];
+	return this.getModuleById(this.focusedModule);
 }
 
 wysiwye.prototype.getFocusedIndex = function() {
 	return this.focusedModule;
 }
 
-wysiwye.prototype.removeModule = function(index) {
+wysiwye.prototype.removeModule = function(id) {
+	var index = this.getModuleIndexById(id);
 	this.modules.splice(index, 1);
 	$('.module[index="' + this.focusedModule + '"]', this.moduleContainer).remove();
 }
 
 wysiwye.prototype.removeFocusedModule = function() {
 	if (this.focusedModule != null) {
-		this.modules.splice(this.focusedModule, 1);
+		var index = this.getModuleIndexById(this.focusedModule);
+		this.modules.splice(index, 1);
 		$('.module[index="' + this.focusedModule + '"]', this.moduleContainer).remove();
 		this.focusedModule = null;
-		$('.module').each(function(i) {
-			$(this).attr('index', i);
-		});
 	}
 }
 
 wysiwye.prototype.updateFocusedModule = function(property, value) {
-	this.modules[this.focusedModule][property] = value;
+	var index = this.getModuleIndexById(this.focusedModule);
+	this.modules[index][property] = value;
 }
 
 wysiwye.prototype.updateGlobalSetting = function(property, value) {
@@ -214,17 +230,15 @@ wysiwye.prototype.updateGlobalSetting = function(property, value) {
 }
 
 wysiwye.prototype.moveFocusedModuleUp = function() {
-	var oi = this.focusedModule;
+	var oi = this.getModuleIndexById(this.focusedModule);
 	var ni = oi - 1;
 	this.moduleMove(oi, ni);
-	this.focusedModule = ni;
 }
 
 wysiwye.prototype.moveFocusedModuleDown = function() {
-	var oi = this.focusedModule;
+	var oi = this.getModuleIndexById(this.focusedModule);
 	var ni = oi + 1;
 	this.moduleMove(oi, ni);
-	this.focusedModule = ni;
 }
 
 wysiwye.prototype.moduleMove = function(old_index, new_index) {
