@@ -77,6 +77,7 @@ function wysiwye(preview) {
 			columnCount: '2',
 			alignment: 'left',
 			containerPadding: '10',
+			subModules: [],
 			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td class="module-column" style="width: 50%;"></td><td class="module-column" style="width: 50%;"></td></tr></tbody></table>'
 		};
 	};
@@ -130,13 +131,54 @@ wysiwye.prototype.addModule = function(module) {
 	return $('table.module[index="' + index + '"]', this.moduleContainer);
 }
 
+wysiwye.prototype.addColumnModule = function(module, parent) {
+	var newModule = null;
+	switch (module) {
+		case 'image': 
+			newModule = this.getDefaultImage();
+			break;
+		case 'text':
+			newModule = this.getDefaultText();
+			break;
+		case 'button':
+			newModule = this.getDefaultButton();
+			break;
+		case 'space':
+			newModule = this.getDefaultSpace();
+			break;
+		case 'divider':
+			newModule = this.getDefaultDivider();
+			break;
+		default:
+			return null;
+	}
+	var index = this.modules.length;
+	var parentElement = $('table.module[index="' + parent + '"] tbody tr td.module-column[selected]');
+	var column = parentElement.index();
+	var element = $(newModule.html);
+	$(element).attr('index', index);
+	$(element).attr('parent', parent);
+	$(element).attr('col', column);
+	newModule.parent = parent;
+	newModule.column = column;
+	newModule.html = $(element).prop('outerHTML');
+	$(parentElement).append(newModule.html);
+	this.modules.push(newModule);
+	this.focusedModule = index;
+	return $('table.module[index="' + index + '"]', parentElement);
+}
+
 wysiwye.prototype.getModule = function(index) {
 	return this.modules[index];
 }
 
 wysiwye.prototype.setFocusedModule = function(index) {
-	this.focusedModule = index;
-	return this.modules[this.focusedModule];
+	if (index > -1) {
+		this.focusedModule = index;
+		return this.modules[this.focusedModule];
+	} else {
+		return null;
+	}
 }
 
 wysiwye.prototype.getFocusedModule = function() {

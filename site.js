@@ -64,7 +64,7 @@ function changeSettingsView(module) {
 }
 
 function moveArrowButtons(element) {
-	if (template && template.modules && template.modules.length > 1) {
+	if (element && template && template.modules && template.modules.length > 1) {
 		$('.arrow-btn').show();
 		var box = element.getBoundingClientRect();
 		$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
@@ -152,6 +152,13 @@ $(document).ready(function() {
 		moveArrowButtons(fe);
 	});
 
+	$('#body').click(function() {
+		$('.module').removeAttr('selected');
+		$('.module-column').removeAttr('selected');
+		template.setFocusedModule(null);
+		$('.arrow-btn').hide();
+	});
+
 	//defint event handlers
 	$('.ctrl-expando').click(function(){
 		var arrow = $(this).find('.caret');
@@ -178,9 +185,17 @@ $(document).ready(function() {
 
 	$('.module-add').click(function() {
 		var module = $(this).attr('module');
+		//check to see if currently focused module is a columns type
 		var currentFocusMod = template.getFocusedModule();
-		var moduleElement = template.addModule(module);
 		$('.module').removeAttr('selected');
+		var moduleElement = null;
+		if (currentFocusMod && currentFocusMod.type == 'columns') {
+			moduleElement = template.addColumnModule(module, template.getFocusedIndex());
+		} else {
+			$('.module-column').removeAttr('selected');
+			moduleElement = template.addModule(module);
+		}
+		
 		$(moduleElement).attr('selected', 'true');
 		var newModule = template.getFocusedModule();
 		changeSettingsView(newModule);
@@ -190,7 +205,9 @@ $(document).ready(function() {
 				template.updateFocusedModule('text', $(this).text());
 			});
 		} else if (module == 'columns') {
-			$('tr td.module-column', moduleElement).click(function() {
+			var cols = $('tr td.module-column', moduleElement);
+			cols.first().attr('selected', 'true');
+			cols.click(function() {
 				if (!$(this).attr('selected')) {
 					$('.module-column').removeAttr('selected');
 					$(this).attr('selected', 'true');
@@ -198,6 +215,7 @@ $(document).ready(function() {
 			});
 		}
 		$(moduleElement).click(function(e) {
+			e.stopPropagation();
 			if (!$(this).attr('selected')) {
 				$('.module').removeAttr('selected');
 				$('.module-column').removeAttr('selected');
@@ -208,7 +226,9 @@ $(document).ready(function() {
 				var index = $(this).attr('index');
 				var focusModule = template.setFocusedModule(parseInt(index));
 				changeSettingsView(focusModule);
-				e.stopPropagation();
+				if (focusModule.type == 'columns') {
+					$('tr td.module-column', this).first().attr('selected', 'true');
+				}
 			}
 		});
 	});
@@ -423,6 +443,10 @@ $(document).ready(function() {
 	});
 	$(colNum).change(function() {
 		var cn = parseInt($(this).val());
+		if (isNaN(cn) || cn < 2) {
+			$(this).val('2'); 
+			return; 
+		}
 		var newWidth = 100 / cn;
 		template.updateFocusedModule('columnCount', $(this).val());
 		//manipulate columns here
