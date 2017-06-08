@@ -52,7 +52,7 @@ function changeSettingsView(module) {
 				break;
 			case 'columns':
 				$(colBg).val(module.backgroundColor);
-				$(colNum).val(module.columnCount);
+				$(colNum).val(module.columns.length);
 				$(colAlign).val(module.alignment);
 				$(colContainerPadding).val(module.containerPadding);
 				break;
@@ -64,7 +64,7 @@ function changeSettingsView(module) {
 }
 
 function moveArrowButtons(element) {
-	if (element && template && template.modules && template.modules.length > 1) {
+	if (element && template && $(element).siblings().length) {
 		$('.arrow-btn').show();
 		var box = element.getBoundingClientRect();
 		$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
@@ -147,8 +147,8 @@ $(document).ready(function() {
 	}
 
 	$(window).resize(function() {
-		var i = template.getFocusedIndex();
-		var fe = $('.module[index="' + i + '"]').get(0);
+		var i = template.getFocusedId();
+		var fe = $('#' + i).get(0);
 		moveArrowButtons(fe);
 	});
 
@@ -156,6 +156,7 @@ $(document).ready(function() {
 		$('.module').removeAttr('selected');
 		$('.module-column').removeAttr('selected');
 		template.setFocusedModule(null);
+		changeSettingsView(null);
 		$('.arrow-btn').hide();
 	});
 
@@ -190,7 +191,7 @@ $(document).ready(function() {
 		$('.module').removeAttr('selected');
 		var moduleElement = null;
 		if (currentFocusMod && currentFocusMod.type == 'columns') {
-			moduleElement = template.addColumnModule(module, template.getFocusedIndex());
+			moduleElement = template.addColumnModule(module, template.getFocusedId());
 		} else {
 			$('.module-column').removeAttr('selected');
 			moduleElement = template.addModule(module);
@@ -223,8 +224,8 @@ $(document).ready(function() {
 				//move the up/down buttons
 				moveArrowButtons(this);
 				//pull settings in the side pane
-				var index = $(this).attr('index');
-				var focusModule = template.setFocusedModule(parseInt(index));
+				var id = $(this).attr('id');
+				var focusModule = template.setFocusedModule(parseInt(id));
 				changeSettingsView(focusModule);
 				if (focusModule.type == 'columns') {
 					$('tr td.module-column', this).first().attr('selected', 'true');
@@ -248,19 +249,16 @@ $(document).ready(function() {
 		});
 	});
 	$(upArrowBtn).click(function() {
-		var id = template.getFocusedIndex();
-		var 
-		if (i > 0) {
-			var fe = $('#' + i);
+		var fe = $('#' + template.getFocusedId());
+		if (!fe.is(':first-child')) {
 			fe.prev().insertAfter(fe);
 			template.moveFocusedModuleUp();
 			moveArrowButtons($(fe).get(0));
 		}
 	});
 	$(downArrowBtn).click(function() {
-		var i = template.getFocusedIndex();
-		if (i) {
-			var fe = $('#' + i);
+		var fe = $('#' + template.getFocusedId());
+		if (!fe.is(':last-child')) {
 			fe.next().insertBefore(fe);
 			template.moveFocusedModuleDown();
 			moveArrowButtons($(fe).get(0));
@@ -309,15 +307,15 @@ $(document).ready(function() {
 	//image parameter events
 	$(imgSrc).change(function() {
 		template.updateFocusedModule('src', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td img').attr('src', $(this).val());
+		$('#' + template.getFocusedId() + ' tr td img').attr('src', $(this).val());
 	});
 	$(imgBg).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+		$('#' + template.getFocusedId()).css('background', '#' + $(this).val());
 	});
 	$(imgPadding).change(function() {
 		template.updateFocusedModule('containerPadding', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
+		$('#' + template.getFocusedId()).css('padding', $(this).val() + 'px');
 	});
 	$(imgWidth).change(function() {
 		template.updateFocusedModule('width', $(this).val());
@@ -325,153 +323,156 @@ $(document).ready(function() {
 		if (value != 'auto' && value.indexOf('%') < 0) {
 			value += 'px';
 		}
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td img').css('width', value);
+		$('#' + template.getFocusedId() + ' tr td img').css('width', value);
 	});
 	$(imgAlign).change(function() {
 		template.updateFocusedModule('alignment', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td').attr('align', $(this).val());
+		$('#' + template.getFocusedId() + ' tr td').attr('align', $(this).val());
 	});
 	//text parameter events
 	$(txtFntSize).change(function() {
 		template.updateFocusedModule('fontSize', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('font-size', $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' tr td div').css('font-size', $(this).val() + 'px');
 	});
 	$(txtFntColor).change(function() {
 		template.updateFocusedModule('fontColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('color', '#' + $(this).val());
+		$('#' + template.getFocusedId() + ' tr td div').css('color', '#' + $(this).val());
 	});
 	$(txtAlign).change(function() {
 		template.updateFocusedModule('alignment', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('text-align', $(this).val());
+		$('#' + template.getFocusedId() + ' tr td div').css('text-align', $(this).val());
 	});
 	$(txtBg).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+		$('#' + template.getFocusedId()).css('background', '#' + $(this).val());
 	});
 	$(txtPadding).change(function() {
 		template.updateFocusedModule('containerPadding', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
+		$('#' + template.getFocusedId()).css('padding', $(this).val() + 'px');
 	});
 
 	//button parameter events
 	$(btnColor).change(function() {
 		template.updateFocusedModule('buttonColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("background", '#' + $(this).val());
+		$('#' + template.getFocusedId() + ' tr td a').css("background", '#' + $(this).val());
 	});
 	$(btnBdrColor).change(function() {
 		template.updateFocusedModule('buttonColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("border", '1px solid #' + $(this).val());
+		$('#' + template.getFocusedId() + ' tr td a').css("border", '1px solid #' + $(this).val());
 	});
 	$(btnFntColor).change(function() {
 		template.updateFocusedModule('fontColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("color", '#' + $(this).val());
+		$('#' + template.getFocusedId() + ' tr td a').css("color", '#' + $(this).val());
 	});
 	$(btnRadius).change(function() {
 		template.updateFocusedModule('borderRadius', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("border-radius", $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' tr td a').css("border-radius", $(this).val() + 'px');
 	});
 	$(btnFntSize).change(function() {
 		template.updateFocusedModule('fontSize', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css("fontSize", $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' tr td a').css("fontSize", $(this).val() + 'px');
 	});
 	$(btnText).change(function() {
 		template.updateFocusedModule('buttonText', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').html($(this).val());
+		$('#' + template.getFocusedId() + ' tr td a').html($(this).val());
 	});
 	$(btnUrl).change(function() {
 		template.updateFocusedModule('href', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').attr("href", $(this).val());
+		$('#' + template.getFocusedId() + ' tr td a').attr("href", $(this).val());
 	});
 	$(btnAlign).change(function() {
 		template.updateFocusedModule('alignment', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td').css("text-align", $(this).val());
+		$('#' + template.getFocusedId() + ' tr td').css("text-align", $(this).val());
 	});
 	$(btnBg).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css("background", '#' + $(this).val());
+		$('#' + template.getFocusedId()).css("background", '#' + $(this).val());
 	});
 	$(btnPaddingTB).change(function() {
 		template.updateFocusedModule('paddingTB', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css('padding-bottom', $(this).val() + 'px').css('padding-top', $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' tr td a').css('padding-bottom', $(this).val() + 'px').css('padding-top', $(this).val() + 'px');
 	});
 	$(btnPaddingLR).change(function() {
 		template.updateFocusedModule('paddingLR', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td a').css('padding-left', $(this).val() + 'px').css('padding-right', $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' tr td a').css('padding-left', $(this).val() + 'px').css('padding-right', $(this).val() + 'px');
 	});
 	$(btnContainerPadding).change(function() {
 		template.updateFocusedModule('containerPadding', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
+		$('#' + template.getFocusedId()).css('padding', $(this).val() + 'px');
 	});
 
 	//space parameter events
 	$(spaceColor).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+		$('#' + template.getFocusedId()).css('background', '#' + $(this).val());
 	});
 	$(spaceHeight).change(function() {
 		template.updateFocusedModule('height', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td').css("height", $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' tr td').css("height", $(this).val() + 'px');
 	});
 
 	//divider parameter events
 	$(divBg).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+		$('#' + template.getFocusedId()).css('background', '#' + $(this).val());
 	});
 	$(divHeight).change(function() {
 		template.updateFocusedModule('height', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('height', $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' tr td div').css('height', $(this).val() + 'px');
 	});
 	$(divColor).change(function() {
 		template.updateFocusedModule('color', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td div').css('background', '#' + $(this).val());
+		$('#' + template.getFocusedId() + ' tr td div').css('background', '#' + $(this).val());
 	});
 	$(divContainerPadding).change(function() {
 		template.updateFocusedModule('containerPadding', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
+		$('#' + template.getFocusedId()).css('padding', $(this).val() + 'px');
 	});
 
 	//columns parameter events
 	$(colBg).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('background', '#' + $(this).val());
+		$('#' + template.getFocusedId()).css('background', '#' + $(this).val());
 	});
 	$(colNum).change(function() {
+		var mod = template.getFocusedModule();
 		var cn = parseInt($(this).val());
 		if (isNaN(cn) || cn < 2) {
 			$(this).val('2'); 
 			return; 
 		}
 		var newWidth = 100 / cn;
-		template.updateFocusedModule('columnCount', $(this).val());
+		//template.updateFocusedModule('columnCount', $(this).val());
 		//manipulate columns here
-		var cc = $('.module[index="' + template.getFocusedIndex() + '"] tr td').length;
+		var cc = $('#' + template.getFocusedId() + ' tr td.module-column').length;
 		while (cc != cn) {
 			if (cn > cc) {
 				//add some columns
-				var newCol = $('<td class="module-column"></td>');
-				$('.module[index="' + template.getFocusedIndex() + '"] tr').append(newCol);
+				var newCol = $('<td class="module-column" style="vertical-align: top;"></td>');
+				$('#' + template.getFocusedId() + ' > tbody > tr').append(newCol);
 				newCol.click(function() {
 					if (!$(this).attr('selected')) {
 						$('.module-column').removeAttr('selected');
 						$(this).attr('selected', 'true');
 					}
 				});
+				mod.columns.push([]);
 			} else {
 				//remove some columns
-				$('.module[index="' + template.getFocusedIndex() + '"] tr td').get(cc - 1).remove();
+				$('#' + template.getFocusedId() + ' tr td.module-column').get(cc - 1).remove();
+				mod.columns.pop();
 			}
-			cc = $('.module[index="' + template.getFocusedIndex() + '"] tr td').length;
+			cc = $('#' + template.getFocusedId() + ' tr td.module-column').length;
 		}
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td').css('width', newWidth + '%');
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td').attr('align', $(colAlign).val());
+		$('#' + template.getFocusedId() + ' tr td.module-column').css('width', newWidth + '%');
+		$('#' + template.getFocusedId() + ' tr td.module-column').attr('align', $(colAlign).val());
 	});
 	$(colAlign).change(function() {
 		template.updateFocusedModule('alignment', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"] tr td').attr('align', $(this).val());
+		$('#' + template.getFocusedId() + ' tr td.module-column').attr('align', $(this).val());
 	});
 	$(colContainerPadding).change(function() {
 		template.updateFocusedModule('containerPadding', $(this).val());
-		$('.module[index="' + template.getFocusedIndex() + '"]').css('padding', $(this).val() + 'px');
+		$('#' + template.getFocusedId()).css('padding', $(this).val() + 'px');
 	});
 });

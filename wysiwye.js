@@ -75,11 +75,13 @@ function wysiwye(preview) {
 		return {
 			type: 'columns',
 			backgroundColor: 'FFFFFF',
-			columnCount: '2',
 			alignment: 'left',
 			containerPadding: '10',
-			subModules: [],
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td class="module-column" style="width: 50%;"></td><td class="module-column" style="width: 50%;"></td></tr></tbody></table>'
+			columns: [
+				[],
+				[]
+			],
+			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td class="module-column" style="width: 50%;vertical-align: top;"></td><td class="module-column" style="width: 50%;vertical-align: top;"></td></tr></tbody></table>'
 		};
 	};
 
@@ -124,6 +126,7 @@ wysiwye.prototype.addModule = function(module) {
 	newModule.id = ++this.nextId;
 	var element = $(newModule.html);
 	$(element).attr('id', newModule.id);
+	newModule.parentId = null;
 	newModule.html = $(element).prop('outerHTML');
 	//add to the preview
 	$(this.moduleContainer).append(newModule.html);
@@ -165,15 +168,25 @@ wysiwye.prototype.addColumnModule = function(module, parentId) {
 	newModule.column = column;
 	newModule.html = $(element).prop('outerHTML');
 	$(parentElement).append(newModule.html);
-	this.modules[this.getModuleIndexById(parentId)].subModules.push(newModule);
+	this.modules[this.getModuleIndexById(parentId)].columns[column].push(newModule);
 	this.focusedModule = newModule.id;
 	return $('#' + newModule.id);
 }
 
 wysiwye.prototype.getModuleById = function(id) {
 	for (var i = 0; i < this.modules.length; i++) {
-		if (this.modules[i].id == id) {
-			return this.modules[i];
+		var m = this.modules[i];
+		if (m.id == id) {
+			return m;
+		} else if (m.columns && m.columns.length) {
+			for (var j = 0; j < m.columns.length; j++) {
+				var col = m.columns[j];
+				for (var k = 0; k < col.length; k++) {
+					if (col[k].id == id) {
+						return col[k];
+					}
+				}
+			}
 		}
 	}
 	return null;
@@ -181,8 +194,18 @@ wysiwye.prototype.getModuleById = function(id) {
 
 wysiwye.prototype.getModuleIndexById = function(id) {
 	for (var i = 0; i < this.modules.length; i++) {
-		if (this.modules[i].id == id) {
+		var m = this.modules[i];
+		if (m.id == id) {
 			return i;
+		} else if (m.columns && m.columns.length) {
+			for (var j = 0; j < m.columns.length; j++) {
+				var col = m.columns[j];
+				for (var k = 0; k < col.length; k++) {
+					if (col[k].id == id) {
+						return k;
+					}
+				}
+			}
 		}
 	}
 	return -1;
@@ -197,32 +220,42 @@ wysiwye.prototype.setFocusedModule = function(id) {
 	}
 }
 
+wysiwye.prototype.getFocusedId = function() {
+	return this.focusedModule;
+};
+
 wysiwye.prototype.getFocusedModule = function() {
 	return this.getModuleById(this.focusedModule);
 }
 
 wysiwye.prototype.getFocusedIndex = function() {
-	return this.focusedModule;
+	return this.getModuleIndexById(this.focusedModule);
+}
+
+wysiwye.prototype.getModuleCount = function() {
+	return this.modules.length;
 }
 
 wysiwye.prototype.removeModule = function(id) {
+	var mod = this.getModuleById(id);
 	var index = this.getModuleIndexById(id);
-	this.modules.splice(index, 1);
-	$('.module[index="' + this.focusedModule + '"]', this.moduleContainer).remove();
+	if (mod.parentId) {
+		this.getModuleById(mod.parentId).columns[mod.column].splice(index, 1);
+	} else {
+		this.modules.splice(index, 1);
+	}
+	$('#' + id).remove();
 }
 
 wysiwye.prototype.removeFocusedModule = function() {
 	if (this.focusedModule != null) {
-		var index = this.getModuleIndexById(this.focusedModule);
-		this.modules.splice(index, 1);
-		$('.module[index="' + this.focusedModule + '"]', this.moduleContainer).remove();
+		this.removeModule(this.focusedModule);
 		this.focusedModule = null;
 	}
 }
 
 wysiwye.prototype.updateFocusedModule = function(property, value) {
-	var index = this.getModuleIndexById(this.focusedModule);
-	this.modules[index][property] = value;
+	this.getModuleById(this.focusedModule)[property] = value;
 }
 
 wysiwye.prototype.updateGlobalSetting = function(property, value) {
@@ -230,31 +263,131 @@ wysiwye.prototype.updateGlobalSetting = function(property, value) {
 }
 
 wysiwye.prototype.moveFocusedModuleUp = function() {
+	var mod = this.getModuleById(this.focusedModule);
 	var oi = this.getModuleIndexById(this.focusedModule);
 	var ni = oi - 1;
-	this.moduleMove(oi, ni);
+	if (mod.parentId) {
+		var parent = this.getModuleById(mod.parentId);
+		this.moduleMove(parent.columns[mod.column], oi, ni);
+	} else {
+		this.moduleMove(this.modules, oi, ni);
+	}
+	
 }
 
 wysiwye.prototype.moveFocusedModuleDown = function() {
+	var mod = this.getModuleById(this.focusedModule);
 	var oi = this.getModuleIndexById(this.focusedModule);
 	var ni = oi + 1;
-	this.moduleMove(oi, ni);
+	if (mod.parentId) {
+		var parent = this.getModuleById(mod.parentId);
+		this.moduleMove(parent.columns[mod.column], oi, ni);
+	} else {
+		this.moduleMove(this.modules, oi, ni);
+	}
 }
 
-wysiwye.prototype.moduleMove = function(old_index, new_index) {
-	while (old_index < 0) {
-        old_index += this.modules.length;
+wysiwye.prototype.moduleMove = function(collection, oldIndex, newIndex) {
+	while (oldIndex < 0) {
+        oldIndex += collection.length;
     }
-    while (new_index < 0) {
-        new_index += this.modules.length;
+    while (newIndex < 0) {
+        newIndex += collection.length;
     }
-    if (new_index >= this.modules.length) {
-        var k = new_index - this.modules.length;
+    if (newIndex >= collection.length) {
+        var k = newIndex - collection.length;
         while ((k--) + 1) {
-            this.modules.push(undefined);
+            collection.push(undefined);
         }
     }
-    this.modules.splice(new_index, 0, this.modules.splice(old_index, 1)[0]);
+    collection.splice(newIndex, 0, collection.splice(oldIndex, 1)[0]);
+}
+
+wysiwye.prototype.generateModuleMarkup = function (mod, modElem) {
+	switch (mod.type) {
+		case 'image':
+			$(modElem).css({
+				'background': '#' + mod.backgroundColor,
+				'padding': mod.containerPadding + 'px'
+			});
+			$('tr td img', modElem).attr('src', mod.src);
+			var w = mod.width;
+			if (w != 'auto' && w.indexOf('%') < 0) {
+				w += 'px';
+			}
+			$('tr td img', modElem).css('width', w);
+			$('tr td', modElem).attr('align', mod.alignment); 
+			break;
+		case 'text':
+			$(modElem).css({
+				'color': '#' + mod.fontColor,
+				'font-size': mod.fontSize + 'px',
+				'background': '#' + mod.backgroundColor,
+				'padding': mod.containerPadding + 'px' 
+			});
+			$('tr td div', modElem).html(mod.text);
+			$('tr td div', modElem).removeAttr('contenteditable');
+			break;
+		case 'button':
+			$(modElem).css({
+				'text-align': mod.alignment,
+				'background': '#' + mod.backgroundColor,
+				'padding': mod.containerPadding + 'px' 
+			});
+			$('tr td a', modElem).css({
+				'background': '#' + mod.buttonColor,
+				'border': '1px solid #' + mod.borderColor,
+				'border-radius': mod.borderRadius + 'px',
+				'color': '#' + mod.fontColor,
+				'font-size': mod.fontSize + 'px',
+				'padding-top': mod.paddingTB + 'px',
+				'padding-bottom': mod.paddingTB + 'px',
+				'padding-left': mod.paddingLR + 'px',
+				'padding-right': mod.paddingLR + 'px'
+			});
+			$('tr td a', modElem).html(mod.buttonText);
+			$('tr td a', modElem).attr('href', mod.href);
+			break;
+		case 'space':
+			$(modElem).css('background', '#' + mod.backgroundColor);
+			$('tr td', modElem).css('height', mod.height + 'px');
+			break;
+		case 'divider':
+			$(modElem).css({
+				'background': '#' + mod.backgroundColor,
+				'padding': mod.containerPadding + 'px'
+			});
+			$('tr td div', modElem).css({
+				'background': '#' + mod.color,
+				'height': mod.height + 'px'
+			});
+			break;
+		case 'columns':
+			$(modElem).css({
+				'background': '#' + mod.backgroundColor,
+				'padding': mod.containerPadding + 'px'
+			});
+			$('> tbody > tr', modElem).empty();
+			var cw = 100 / mod.columns.length;
+			for (var c = 0; c < mod.columns.length; c++) {
+				var col = mod.columns[c];
+				var colElem = $('td.module-column', modElem).get(c);
+				if (!colElem) {
+					colElem = $('<td class="module-column" style="vertical-align: top;"></td>');
+					colElem.attr('align', mod.alignment);
+					colElem.css('width', cw + '%');
+				}
+				for (var sm = 0; sm < col.length; sm++) {
+					var subMod = col[sm];
+					var subModElem = $(subMod.html);
+					subModElem = this.generateModuleMarkup(subMod, subModElem);
+					$(colElem).append($(subModElem).prop('outerHTML'));
+				}
+				$('> tbody > tr', modElem).append($(colElem).prop('outerHTML'));
+			}
+			break;
+	}
+	return modElem;
 }
 
 wysiwye.prototype.saveTemplate = function(callback) {
@@ -279,51 +412,7 @@ wysiwye.prototype.saveTemplate = function(callback) {
 	for (var i = 0; i < this.modules.length; i++) {
 		var mod = this.modules[i];
 		var modElem = $(mod.html);
-		switch (mod.type) {
-			case 'image':
-				$(modElem).css({
-					'background': '#' + mod.backgroundColor,
-					'padding': mod.containerPadding + 'px'
-				});
-				$('tr td img', modElem).attr('src', mod.src);
-				var w = mod.width;
-				if (w != 'auto' && w.indexOf('%') < 0) {
-					w += 'px';
-				}
-				$('tr td img', modElem).css('width', w);
-				$('tr td', modElem).attr('align', mod.alignment); 
-				break;
-			case 'text':
-				$(modElem).css({
-					'color': '#' + mod.fontColor,
-					'font-size': mod.fontSize + 'px',
-					'background': '#' + mod.backgroundColor,
-					'padding': mod.containerPadding + 'px' 
-				});
-				$('tr td div', modElem).html(mod.text);
-				$('tr td div', modElem).removeAttr('contenteditable');
-				break;
-			case 'button':
-				$(modElem).css({
-					'text-align': mod.alignment,
-					'background': '#' + mod.backgroundColor,
-					'padding': mod.containerPadding + 'px' 
-				});
-				$('tr td a', modElem).css({
-					'background': '#' + mod.buttonColor,
-					'border': '1px solid #' + mod.borderColor,
-					'border-radius': mod.borderRadius + 'px',
-					'color': '#' + mod.fontColor,
-					'font-size': mod.fontSize + 'px',
-					'padding-top': mod.paddingTB + 'px',
-					'padding-bottom': mod.paddingTB + 'px',
-					'padding-left': mod.paddingLR + 'px',
-					'padding-right': mod.paddingLR + 'px'
-				});
-				$('tr td a', modElem).html(mod.buttonText);
-				$('tr td a', modElem).attr('href', mod.href);
-				break;
-		}
+		modElem = this.generateModuleMarkup(mod, modElem);
 		$('center table#contentContainer > tbody > tr > td', doc).append($(modElem).prop('outerHTML'));
 	}
 	var docStart = '<!DOCTYPE html><html style="width: 100%;height: 100%;margin: 0px;"><head><meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" /></head><body style="width: 100%;height: 100%;margin: 0px;">';
