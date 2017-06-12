@@ -6,6 +6,7 @@
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script type="text/javascript" src="jscolor.min.js"></script>
+	<script type="text/javascript" src="tinymce/tinymce.min.js"></script>
 	<script type="text/javascript" src="wysiwye.js"></script>
 	<script type="text/javascript" src="site.js"></script>
 </head>
@@ -260,22 +261,22 @@
 							<td><label>Background Color</label></td>
 							<td><input id="bodybg" type="text" class="jscolor" name="bodybg" value="" /></td>
 						</tr>
-						<tr>
+						<!--<tr>
 							<td><label>Text Color</label></td>
 							<td><input id="bodytxtc" type="text" class="jscolor" name="bodytxtc" value=""></td>
 						</tr>
 						<tr>
 							<td><label>Link Color</label></td>
 							<td><input id="bodylnkc" type="text" class="jscolor" name="bodylnkc" value=""></td>
-						</tr>
+						</tr>-->
 					</table>
-					<hr>
+					<!--<hr>
 					<table class="input-table">
 						<tr>
 							<td><label>Font Size</label></td>
 							<td><input id="bodyFontSize" type="text" class="input" style="width: 30px" name="bodyfntsize" value=""></td>
 						</tr>
-					</table>
+					</table>-->
 				</div>
 				<div class="ctrl-expando" expand-content="#expando5">
 					<span class="caret arrow-right"></span>
@@ -308,6 +309,11 @@
 			<div id="body"></div>
 			<div id="upArrowBtn" class="arrow-btn">▲</div>
 			<div id="downArrowBtn" class="arrow-btn">▼</div>
+			<div class="overlay">
+				<div class="center-absolute">
+					<textarea id="tmce"></textarea>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>

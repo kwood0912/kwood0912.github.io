@@ -1,4 +1,4 @@
-var bodyBackground, bodyTextColor, bodyLinkColor, bodyFontSize, body, contentContainer, ccBackground, ccWidth, ccPadding, ccShadow;
+var bodyBackground, /*bodyTextColor, bodyLinkColor, bodyFontSize,*/ body, contentContainer, ccBackground, ccWidth, ccPadding, ccShadow;
 var imgSrc, imgBg, imgPadding;
 var txtFntColor, txtFntSize, txtAlign, txtBg, txtPadding;
 var btnColor, btnBdrColor, btnFntColor, btnRadius, btnFntSize, btnText, btnUrl, btnAlign, btnBg, btnPaddingTB, btnPaddingLR, btnContainerPadding;
@@ -74,7 +74,44 @@ function moveArrowButtons(element) {
 	}
 }
 
+function moduleClick(e) {
+	e.stopPropagation();
+	if (!$(this).attr('selected')) {
+		$('.module').removeAttr('selected');
+		$('.module-column').removeAttr('selected');
+		$(this).attr('selected', 'true');
+		//move the up/down buttons
+		moveArrowButtons(this);
+		//pull settings in the side pane
+		var id = $(this).attr('id');
+		var focusModule = template.setFocusedModule(parseInt(id));
+		changeSettingsView(focusModule);
+		if (focusModule.type == 'columns') {
+			$('tr td.module-column', this).first().attr('selected', 'true');
+		}
+	}
+}
+
 $(document).ready(function() {
+	tinymce.init({
+		selector: 'textarea',
+		height: 500,
+		theme: 'modern',
+		plugins: [
+			'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+			'searchreplace wordcount visualblocks visualchars code fullscreen',
+			'insertdatetime media nonbreaking save table contextmenu directionality',
+			'emoticons template paste textcolor colorpicker textpattern imagetools codesample toc help'
+		],
+		toolbar1: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+		toolbar2: 'print preview media | forecolor backcolor emoticons | codesample help',
+		image_advtab: true,
+		content_css: [
+			'//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
+			'//www.tinymce.com/css/codepen.min.css'
+		]
+	});
+
 	//initialize gui variables
 	template = new wysiwye($('#body'));
 	deleteBtn = $('#deleteBtn');
@@ -83,9 +120,9 @@ $(document).ready(function() {
 	upArrowBtn = $('#upArrowBtn');
 	downArrowBtn = $('#downArrowBtn');
 	bodyBackground = $('#bodybg');
-	bodyTextColor = $('#bodytxtc');
-	bodyLinkColor = $('#bodyLinkColor');
-	bodyFontSize = $('#bodyFontSize');
+	//bodyTextColor = $('#bodytxtc');
+	//bodyLinkColor = $('#bodyLinkColor');
+	//bodyFontSize = $('#bodyFontSize');
 	body = $('#body');
 	contentContainer = $('#contentContainer');
 	ccBackground = $('#ccbg');
@@ -135,9 +172,9 @@ $(document).ready(function() {
 
 	//set variables
 	$(bodyBackground).val(template.globals.bodyBackground);
-	$(bodyTextColor).val(template.globals.bodyTextColor);
-	$(bodyLinkColor).val(template.globals.bodyLinkColor);
-	$(bodyFontSize).val(template.globals.bodyFontSize);
+	//$(bodyTextColor).val(template.globals.bodyTextColor);
+	//$(bodyLinkColor).val(template.globals.bodyLinkColor);
+	//$(bodyFontSize).val(template.globals.bodyFontSize);
 	$(ccBackground).val(template.globals.contentContainerBackground);
 	$(ccWidth).val(template.globals.contentContainerWidth);
 	$(ccPadding).val(template.globals.contentContainerPadding);
@@ -216,23 +253,7 @@ $(document).ready(function() {
 				}
 			});
 		}
-		$(moduleElement).click(function(e) {
-			e.stopPropagation();
-			if (!$(this).attr('selected')) {
-				$('.module').removeAttr('selected');
-				$('.module-column').removeAttr('selected');
-				$(this).attr('selected', 'true');
-				//move the up/down buttons
-				moveArrowButtons(this);
-				//pull settings in the side pane
-				var id = $(this).attr('id');
-				var focusModule = template.setFocusedModule(parseInt(id));
-				changeSettingsView(focusModule);
-				if (focusModule.type == 'columns') {
-					$('tr td.module-column', this).first().attr('selected', 'true');
-				}
-			}
-		});
+		$(moduleElement).click(moduleClick);
 	});
 
 	$(deleteBtn).click(function() {
@@ -244,6 +265,7 @@ $(document).ready(function() {
 		template.saveTemplate(function(html) {
 			if (typeof(Storage) !== 'undefined' && localStorage) {
 				localStorage.setItem('template', html);
+				alert('Template has been saved!');
 			} else {
 				alert('Local Storage is not supported by this browser!');
 			}
@@ -254,6 +276,44 @@ $(document).ready(function() {
 			var htmlTemplate = localStorage.getItem('template');
 			if (htmlTemplate) {
 				template.loadTemplate(htmlTemplate);
+				//loop through modules and apply event handlers
+				$('table.module').each(function(index) {
+					var module = $(this).attr('module');
+					if (module == 'text') {
+						$('tr td div[contenteditable]', this).keyup(function() {
+							template.updateFocusedModule('text', $(this).text());
+						});
+					} else if (module == 'columns') {
+						var cols = $('td.module-column', this);
+						cols.click(function() {
+							if (!$(this).attr('selected')) {
+								$('.module-column').removeAttr('selected');
+								$(this).attr('selected', 'true');
+							}
+						});
+					}
+					$(this).click(moduleClick);
+				});
+				//set global styles input values
+				body = $('div#body');
+				$(body).click(function() {
+					$('.module').removeAttr('selected');
+					$('.module-column').removeAttr('selected');
+					template.setFocusedModule(null);
+					changeSettingsView(null);
+					$('.arrow-btn').hide();
+				});
+				contentContainer = $('#contentContainer');
+				$(bodyBackground).val(template.globals.bodyBackground);
+				$(ccBackground).val(template.globals.contentContainerBackground);
+				$(ccWidth).val(template.globals.contentContainerWidth);
+				$(ccPadding).val(template.globals.contentContainerPadding);
+				if (template.globals.contentContainerShadow) {
+					$(ccShadow).attr('checked', 'true');
+				} else {
+					$(ccShadow).removeAttr('checked');
+				}
+				alert('Template has been loaded!');
 			}
 		} else {
 			alert('Local Storage is not supported by this browser!');
@@ -279,18 +339,18 @@ $(document).ready(function() {
 		template.updateGlobalSetting('bodyBackground', $(this).val());
 		$(body).css('background', '#' + $(this).val());
 	});
-	$(bodyTextColor).change(function() {
+	/*$(bodyTextColor).change(function() {
 		template.updateGlobalSetting('bodyTextColor', $(this).val());
 		$(body).css('color', '#' + $(this).val());
-	});
-	$(bodyLinkColor).change(function() {
+	});*/
+	/*$(bodyLinkColor).change(function() {
 		template.updateGlobalSetting('bodyLinkColor', $(this).val());
 		$('#body a').css('color', '#' + $(this).val());
-	});
-	$(bodyFontSize).change(function() {
+	});*/
+	/*$(bodyFontSize).change(function() {
 		template.updateGlobalSetting('bodyFontSize', $(this).val());
 		$(body).css('font-size', $(this).val() + 'px');
-	});
+	});*/
 	$(ccBackground).change(function() { 
 		template.updateGlobalSetting('contentContainerBackground', $(this).val());
 		$(contentContainer).css('background', '#' + $(this).val());
