@@ -79,6 +79,7 @@ $(document).ready(function() {
 	template = new wysiwye($('#body'));
 	deleteBtn = $('#deleteBtn');
 	saveBtn = $('#saveBtn');
+	loadBtn = $('#loadBtn');
 	upArrowBtn = $('#upArrowBtn');
 	downArrowBtn = $('#downArrowBtn');
 	bodyBackground = $('#bodybg');
@@ -247,6 +248,16 @@ $(document).ready(function() {
 				alert('Local Storage is not supported by this browser!');
 			}
 		});
+	});
+	$(loadBtn).click(function() {
+		if (typeof(Storage) !== 'undefined' && localStorage) {
+			var htmlTemplate = localStorage.getItem('template');
+			if (htmlTemplate) {
+				template.loadTemplate(htmlTemplate);
+			}
+		} else {
+			alert('Local Storage is not supported by this browser!');
+		}
 	});
 	$(upArrowBtn).click(function() {
 		var fe = $('#' + template.getFocusedId());

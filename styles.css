@@ -165,8 +165,23 @@ html, body {
 	cursor: pointer;
 }
 
+#loadBtn {
+	background: #66f;
+	color: #fff;
+	padding: 5px 8px;
+	text-align: center;
+	margin: 5px;
+	border: 2px solid #66f;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
 #saveBtn:hover {
 	background: #449d44;
+}
+
+#loadBtn:hover {
+	background: #88f;
 }
 
 .arrow-btn {

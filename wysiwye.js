@@ -20,7 +20,7 @@ function wysiwye(preview) {
 			width: 'auto',
 			backgroundColor: 'FFFFFF',
 			containerPadding: '10',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tbody><tr><td align="center"><img style="width: auto;max-width: 100%;" src="" /></td></tr></tbody></table>'
+			html: '<table class="module" module="image" style="width: 100%; background: #FFFFFF; padding: 10px;"><tbody><tr><td align="center"><img style="width: auto;max-width: 100%;" src="" /></td></tr></tbody></table>'
 		};
 	};
 	this.getDefaultText = function() {
@@ -32,7 +32,7 @@ function wysiwye(preview) {
 			alignment: 'left',
 			backgroundColor: 'FFFFFF',
 			containerPadding: '10',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px;"><tbody><tr><td><div style="width:100%;color: #000000;" contenteditable="true">Type something</div></td></tr></tbody></table>'
+			html: '<table class="module" module="text" style="width: 100%; background: #FFFFFF; padding: 10px;"><tbody><tr><td><div style="width:100%;color: #000000;" contenteditable="true">Type something</div></td></tr></tbody></table>'
 		};
 	};
 	this.getDefaultButton = function() {
@@ -50,7 +50,7 @@ function wysiwye(preview) {
 			alignment: 'center',
 			backgroundColor: 'FFFFFF',
 			containerPadding: '10',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; text-align: center; padding: 10px;"><tbody><tr><td><a href="" target="_blank" style="background: #1188E6;border: 1px solid #1288E5;color: #FFFFFF;padding: 12px 24px; border-radius: 6px; font-size: 16px; text-decoration: none;text-align: center;">Your Call-to-action</a></td></tr><tbody></table>'
+			html: '<table class="module" module="button" style="width: 100%; background: #FFFFFF; text-align: center; padding: 10px;"><tbody><tr><td><a href="" target="_blank" style="background: #1188E6;border: 1px solid #1288E5;color: #FFFFFF;padding: 12px 24px; border-radius: 6px; font-size: 16px; text-decoration: none;text-align: center;">Your Call-to-action</a></td></tr><tbody></table>'
 		};
 	};
 	this.getDefaultSpace = function() {
@@ -58,7 +58,7 @@ function wysiwye(preview) {
 			type: 'space',
 			backgroundColor: 'FFFFFF',
 			height: '25',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF;"><tbody><tr><td style="height: 25px;"></td></tr></tbody></table>'
+			html: '<table class="module" module="space" style="width: 100%; background: #FFFFFF;"><tbody><tr><td style="height: 25px;"></td></tr></tbody></table>'
 		};
 	};
 	this.getDefaultDivider = function() {
@@ -68,7 +68,7 @@ function wysiwye(preview) {
 			height: '4',
 			color: '000000',
 			containerPadding: '10',
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td><div style="width: 100%; height: 4px; background: #000;"></div></td></tr></tbody></table>'
+			html: '<table class="module" module="divider" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td><div style="width: 100%; height: 4px; background: #000;"></div></td></tr></tbody></table>'
 		};
 	};
 	this.getDefaultColumns = function() {
@@ -81,7 +81,7 @@ function wysiwye(preview) {
 				[],
 				[]
 			],
-			html: '<table class="module" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td class="module-column" style="width: 50%;vertical-align: top;"></td><td class="module-column" style="width: 50%;vertical-align: top;"></td></tr></tbody></table>'
+			html: '<table class="module" module="columns" style="width: 100%; background: #FFFFFF; padding: 10px"><tbody><tr><td class="module-column" style="width: 50%;vertical-align: top;"></td><td class="module-column" style="width: 50%;vertical-align: top;"></td></tr></tbody></table>'
 		};
 	};
 
@@ -420,5 +420,186 @@ wysiwye.prototype.saveTemplate = function(callback) {
 	var final = docStart + $(doc).prop('outerHTML') + docEnd;
 	if (callback) {
 		callback(final);	
+	}
+}
+
+wysiwye.prototype.loadModule = function(module, collection, container) {
+	var type = $(module).attr('module');
+	var newModule = null;
+	var newElem = null;
+	switch (type) {
+		case 'image':
+			newModule = this.getDefaultImage();
+			newElem = $(newModule.html);
+
+			newModule.backgroundColor = $(module).css('background').replace('#', '');
+			newElem.css('background', $(module).css('background'))
+
+			newModule.containerPadding = $(module).css('padding').replace('px', '');
+			newElem.css('padding', $(module).css('padding'));
+
+			newModule.alignment = $('tbody > tr > td', module).attr('align');
+			$('tbody > tr > td', newElem).attr('align', newModule.alignment);
+
+			newModule.width = $('tbody > tr > td > img', module).css('width').replace('px', '');
+			$('tbody > tr > td > img', newElem).css('width', $('tbody > tr > td > img', module).css('width'));
+
+			newModule.src = $('tbody > tr > td > img', module).attr('src');
+			$('tbody > tr > td > img', newElem).attr('src', newModule.src);
+			break;
+		case 'text':
+			newModule = this.getDefaultText();
+			newElem = $(newModule.html);
+
+			newModule.backgroundColor = $(module).css('background').replace('#', '');
+			newElem.css('background', $(module).css('background'))
+
+			newModule.containerPadding = $(module).css('padding').replace('px', '');
+			newElem.css('padding', $(module).css('padding'));
+
+			newModule.alignment = $('tbody > tr > td > div', module).css('text-align');
+			$('tbody > tr > td > div', newElem).css('text-align', newModule.alignment);
+
+			newModule.fontColor = $('tbody > tr > td > div', module).css('color').replace('#', '');
+			$('tbody > tr > td > div', newElem).css('color', $('tbody > tr > td > div', module).css('color'));
+
+			newModule.fontSize = $('tbody > tr > td > div', module).css('font-size').replace('px', '');
+			$('tbody > tr > td > div', newElem).css('font-size', $('tbody > tr > td > div', module).css('font-size'));
+			break;
+		case 'button':
+			newModule = this.getDefaultButton();
+			newElem = $(newModule.html);
+
+			newModule.backgroundColor = $(module).css('background').replace('#', '');
+			newElem.css('background', $(module).css('background'));
+
+			newModule.containerPadding = $(module).css('padding').replace('px', '');
+			newElem.css('padding', $(module).css('padding'));
+
+			newModule.alignment = $('tbody > tr > td', module).css('text-align');
+			$('tbody > tr > td', newElem).css('text-align', newModule.alignment);
+
+			newModule.fontColor = $('tbody > tr > td > a', module).css('color').replace('#', '');
+			$('tbody > tr > td > a', newElem).css('color', $('tbody > tr > td > div', module).css('color'));
+
+			newModule.fontSize = $('tbody > tr > td > a', module).css('font-size').replace('px', '');
+			$('tbody > tr > td > a', newElem).css('font-size', $('tbody > tr > td > div', module).css('font-size'));
+
+			newModule.borderColor = $('tbody > tr > td > a', module).css('border-color').replace('#', '');
+			$('tbody > tr > td > a', newElem).css('border-color', $('tbody > tr > td > a', module).css('border-color'));
+
+			newModule.buttonColor = $('tbody > tr > td > a', module).css('background').replace('#', '');
+			$('tbody > tr > td > a', newElem).css('background', $('tbody > tr > td > a', module).css('background'));
+
+			newModule.borderRadius = $('tbody > tr > td > a', module).css('border-radius').replace('px', '');
+			$('tbody > tr > td > a', newElem).css('border-radius', $('tbody > tr > td > a', module).css('border-radius'));
+
+			newModule.paddingTB = $('tbody > tr > td > a', module).css('padding-top').replace('px', '');
+			$('tbody > tr > td > a', newElem).css({
+				'padding-top': $('tbody > tr > td > a', module).css('padding-top'),
+				'padding-bottom': $('tbody > tr > td > a', module).css('padding-bottom')
+			});
+
+			newModule.paddingLR = $('tbody > tr > td > a', module).css('padding-left').replace('px', '');
+			$('tbody > tr > td > a', newElem).css({
+				'padding-left': $('tbody > tr > td > a', module).css('padding-left'),
+				'padding-right': $('tbody > tr > td > a', module).css('padding-right')
+			});
+
+			newModule.buttonText = $('tbody > tr > td > a', module).text();
+			$('tbody > tr > td > a', newElem).text(newModule.buttonText);
+
+			newModule.href = $('tbody > tr > td > a', module).attr('href');
+			$('tbody > tr > td > a', newElem).attr('href', newModule.href);
+			break;
+		case 'space':
+			newModule = this.getDefaultSpace();
+			newElem = $(newModule.html);
+
+			newModule.backgroundColor = $(module).css('background').replace('#', '');
+			newElem.css('background', $(module).css('background'));
+
+			newModule.height = $('tbody > tr > td', module).css('height').replace('px', '');
+			$('tbody > tr > td', newElem).css('height', $('tbody > tr > td', module).css('height'));
+			break;
+		case 'divider':
+			newModule = this.getDefaultSpace();
+			newElem = $(newModule.html);
+
+			newModule.containerPadding = $(module).css('padding').replace('px', '');
+			newElem.css('padding', $(module).css('padding'));
+
+			newModule.backgroundColor = $(module).css('background').replace('#', '');
+			newElem.css('background', $(module).css('background'));
+
+			newModule.height = $('tbody > tr > td > div', module).css('height').replace('px', '');
+			$('tbody > tr > td > div', newElem).css('height', $('tbody > tr > td > div', module).css('height'));
+
+			newModule.color = $('tbody > tr > td > div', module).css('background').replace('#', '');
+			$('tbody > tr > td > div', newElem).css('background', $('tbody > tr > td > div', module).css('background'));
+			break;
+		case 'columns':
+			newModule = this.getDefaultSpace();
+			newElem = $(newModule.html);
+			newModule.columns = [];
+			$('> tbody > tr', newElem).empty(); //remove default columns
+			newModule.backgroundColor = $(module).css('background').replace('#', '');
+			newElem.css('background', $(module).css('background'));
+
+			newModule.containerPadding = $(module).css('padding').replace('px', '');
+			newElem.css('padding', $(module).css('padding'));
+			//loop through columns
+			var columns = $('> tbody > tr > td', module);
+			for (var i = 0; i < columns.length; i++) {
+				var c = columns[i];
+				newModule.columns.push([]); //push a new module array for each column
+				var mods = $('table.module', c);
+				var col = $('<td class="module-column" align="' + $(this).attr('align') + '"></td>');
+				for (var j = 0; j < mods.length; j++) {
+					var mod = mods[j];
+					this.loadModule($(mod), newModule.columns[i], c);
+				}
+				$('> tbody > tr', newElem).append(col);
+			}
+			break;
+	}
+	newModule.id = ++this.nextId;
+	newElem.attr('id', newModule.id);
+	container.append(newElem);
+	collection.push(newModule);
+}
+
+wysiwye.prototype.loadTemplate = function(html) {
+	var doc = $(html)[1];
+	doc = $(doc);
+	var bg = $('#body').css('background-color');
+	this.updateGlobalSetting('bodyBackground', $('#body', doc).css('background').replace('#', ''));
+	$(this.body).css('background', $('#body', doc).css('background'));
+
+	this.updateGlobalSetting('bodyTextColor', $('#body', doc).css('color').replace('#', ''));
+	$(this.body).css('color', $('#body', doc).css('color'));
+
+	this.updateGlobalSetting('bodyLinkColor', $('#body a', doc).css('color').replace('#', ''));
+	$('a', this.body).css('color', $('#body a', doc).css('color'));
+
+	this.updateGlobalSetting('bodyFontSize', $('#body', doc).css('font-size').replace('px', ''));
+	$(this.body).css('font-size', $('#body', doc).css('font-size'));
+
+	this.updateGlobalSetting('contentContainerBackground', $('#contentContainer', doc).css('background').replace('#', ''));
+	$('#contentContainer', this.body).css('background', $('#contentContainer', doc).css('background'));
+
+	this.updateGlobalSetting('contentContainerWidth', $('#contentContainer', doc).css('width').replace('px', ''));
+	$('#contentContainer', this.body).css('width', $('#contentContainer', doc).css('width'));
+
+	this.updateGlobalSetting('contentContainerPadding', $('#contentContainer', doc).css('padding').replace('px', ''));
+	$('#contentContainer', this.body).css('padding', $('#contentContainer', doc).css('padding'));
+
+	this.updateGlobalSetting('contentContainerShadow', $('#contentContainer', doc).css('box-shadow') != 'none');
+	$('#contentContainer', this.body).css('box-shadow', $('#contentContainer', doc).css('box-shadow'));
+
+	var mods = $('center table#contentContainer > tbody > tr > td > table.module', doc);
+	for (var i = 0; i < mods.length; i++) {
+		var e = mods[i];
+		this.loadModule($(e), this.modules, this.moduleContainer);
 	}
 }
