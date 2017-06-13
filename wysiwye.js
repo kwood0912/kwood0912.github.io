@@ -334,8 +334,8 @@ wysiwye.prototype.generateModuleMarkup = function (mod, modElem) {
 				'background': '#' + mod.backgroundColor,
 				'padding': mod.containerPadding + 'px' 
 			});
-			$('tr td div', modElem).html(mod.text);
-			$('tr td div', modElem).removeAttr('contenteditable');
+			$('> tbody > tr > td > div', modElem).html(mod.text);
+			$('> tbody > tr > td > div', modElem).removeAttr('contenteditable');
 			break;
 		case 'button':
 			$(modElem).css({
@@ -426,6 +426,7 @@ wysiwye.prototype.saveTemplate = function(callback) {
 	var docStart = '<!DOCTYPE html><html style="width: 100%;height: 100%;margin: 0px;"><head><meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" /></head><body style="width: 100%;height: 100%;margin: 0px;">';
 	var docEnd = '</body></html>';
 	var final = docStart + $(doc).prop('outerHTML') + docEnd;
+	final = final.replace(/[\n\r]/g, ' ');
 	if (callback) {
 		callback(final);	
 	}
@@ -456,11 +457,13 @@ wysiwye.prototype.loadModule = function(module, collection) {
 
 			newModule.containerPadding = $(module).css('padding-top').replace('px', '');
 
-			newModule.alignment = $('tbody > tr > td > div', module).css('text-align');
+			newModule.alignment = $('> tbody > tr > td > div', module).css('text-align');
 
-			newModule.fontColor = r2h($('tbody > tr > td > div', module).css('color'));
+			newModule.fontColor = r2h($('> tbody > tr > td > div', module).css('color'));
 
-			newModule.fontSize = $('tbody > tr > td > div', module).css('font-size').replace('px', '');
+			newModule.fontSize = $('> tbody > tr > td > div', module).css('font-size').replace('px', '');
+
+			newModule.text = $('> tbody > tr > td > div', module).html();
 			break;
 		case 'button':
 			newModule = this.getDefaultButton();
