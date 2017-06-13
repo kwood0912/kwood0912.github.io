@@ -4,6 +4,7 @@ html, body {
 	background: #00f;
 	margin: 0px;
 	font-family: 'Questrial', sans-serif;
+	overflow-y: hidden;
 }
 
 .container {
@@ -113,6 +114,7 @@ html, body {
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
+	overflow-y: auto;
 }
 
 .jscolor {

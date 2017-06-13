@@ -66,9 +66,9 @@ function changeSettingsView(module) {
 function moveArrowButtons(element) {
 	if (element && template && $(element).siblings().length) {
 		$('.arrow-btn').show();
-		var box = element.getBoundingClientRect();
-		$('#upArrowBtn').css({ top: box.top + 'px', left: box.right + 'px' });
-		$('#downArrowBtn').css({ top: box.top + $('#upArrowBtn').height() + 'px', left: box.right + 'px' });
+		var box = $(element).offset();
+		$('#upArrowBtn').css({ top: box.top + 'px', left: (box.left - $('#upArrowBtn').height()) + 'px' });
+		$('#downArrowBtn').css({ top: box.top + $('#upArrowBtn').height() + 'px', left: (box.left - $('#downArrowBtn').height()) + 'px' });
 	} else {
 		$('.arrow-btn').hide();
 	}
@@ -186,6 +186,10 @@ $(document).ready(function() {
 		var i = template.getFocusedId();
 		var fe = $('#' + i).get(0);
 		moveArrowButtons(fe);
+	});
+
+	$('#body').scroll(function() {
+		moveArrowButtons($('#' + template.getFocusedId()).get(0));
 	});
 
 	$('#body').click(function() {
