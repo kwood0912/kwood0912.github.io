@@ -15,9 +15,9 @@
 		<div class="ctrl-panel">
 			<h2>Template Creator</h2>
 			<div style="margin-bottom: 8px;">
-				<button id="saveBtn">Save Template</button>
+				<button id="saveBtn" class="btn-green">Save Template</button>
 				<span style="width: 15px;"></span>
-				<button id="loadBtn">Load Template</button>
+				<button id="loadBtn" class="btn-blue">Load Template</button>
 			</div>
 			<div class="ctrl-expando" expand-content="#expando1">
 				<div class="caret arrow-right"></div>
@@ -84,6 +84,9 @@
 							<td><input id="txtPadding" class="input" style="width: 30px" type="text" name="txtPadding" value="" /></td>
 						</tr>
 					</table>
+					<div>
+						<button id="txtEditBtn" class="btn-blue">Edit Content</button>
+					</div>
 				</div>
 				<div class="module-settings" style="display: none;" module="button">
 					<table class="input-table">
@@ -203,7 +206,7 @@
 					</table>
 				</div>
 				<div>
-					<button id="deleteBtn" style="display: none;">Delete Element</button>
+					<button id="deleteBtn" class="btn-red" style="display: none;">Delete Element</button>
 				</div>
 			</div>
 			<div class="ctrl-expando" expand-content="#expando2">
@@ -309,9 +312,14 @@
 			<div id="body"></div>
 			<div id="upArrowBtn" class="arrow-btn">▲</div>
 			<div id="downArrowBtn" class="arrow-btn">▼</div>
-			<div class="overlay">
+			<div class="overlay" style="display: none;">
 				<div class="center-absolute">
 					<textarea id="tmce"></textarea>
+					<div style="margin-top: 10px;">
+						<button id="txtSaveBtn" class="btn-green">Save & Close</button>
+						<span style="width: 10px;"></span>
+						<button id="closeMceBtn" class="btn-gray">Cancel</button>
+					</div>
 				</div>
 			</div>
 		</div>

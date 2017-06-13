@@ -1,11 +1,11 @@
 var bodyBackground, /*bodyTextColor, bodyLinkColor, bodyFontSize,*/ body, contentContainer, ccBackground, ccWidth, ccPadding, ccShadow;
 var imgSrc, imgBg, imgPadding;
-var txtFntColor, txtFntSize, txtAlign, txtBg, txtPadding;
+var txtFntColor, txtFntSize, txtAlign, txtBg, txtPadding, txtEditBtn;
 var btnColor, btnBdrColor, btnFntColor, btnRadius, btnFntSize, btnText, btnUrl, btnAlign, btnBg, btnPaddingTB, btnPaddingLR, btnContainerPadding;
 var spaceColor, spaceHeight;
 var divBg, divHeight, divColor, divContainerPadding;
 var colBg, colNum, colAlign, colContainerPadding;
-var deleteBtn, saveBtn, upArrowBtn, downArrowBtn;
+var deleteBtn, saveBtn, upArrowBtn, downArrowBtn, closeMceBtn, txtSaveBtn;
 var template = null;
 
 function changeSettingsView(module) {
@@ -96,6 +96,7 @@ $(document).ready(function() {
 	tinymce.init({
 		selector: 'textarea',
 		height: 500,
+		width: 600,
 		theme: 'modern',
 		plugins: [
 			'advlist autolink lists link image charmap print preview hr anchor pagebreak',
@@ -103,12 +104,12 @@ $(document).ready(function() {
 			'insertdatetime media nonbreaking save table contextmenu directionality',
 			'emoticons template paste textcolor colorpicker textpattern imagetools codesample toc help'
 		],
-		toolbar1: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
-		toolbar2: 'print preview media | forecolor backcolor emoticons | codesample help',
+		toolbar1: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | fontsizeselect',
+		toolbar2: 'bullist numlist outdent indent | link image | print preview media | forecolor backcolor emoticons | codesample help',
 		image_advtab: true,
 		content_css: [
-			'//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
-			'//www.tinymce.com/css/codepen.min.css'
+			'https://fonts.googleapis.com/css?family=Questrial'//,
+			//'//www.tinymce.com/css/codepen.min.css'
 		]
 	});
 
@@ -119,10 +120,9 @@ $(document).ready(function() {
 	loadBtn = $('#loadBtn');
 	upArrowBtn = $('#upArrowBtn');
 	downArrowBtn = $('#downArrowBtn');
+	closeMceBtn = $('#closeMceBtn');
+	txtSaveBtn = $('#txtSaveBtn');
 	bodyBackground = $('#bodybg');
-	//bodyTextColor = $('#bodytxtc');
-	//bodyLinkColor = $('#bodyLinkColor');
-	//bodyFontSize = $('#bodyFontSize');
 	body = $('#body');
 	contentContainer = $('#contentContainer');
 	ccBackground = $('#ccbg');
@@ -141,6 +141,7 @@ $(document).ready(function() {
 	txtAlign = $('#txtAlign');
 	txtBg = $('#txtBg');
 	txtPadding = $('#txtPadding');
+	txtEditBtn = $('#txtEditBtn');
 	//button gui controls
 	btnColor = $('#btnColor');
 	btnBdrColor = $('#btnBdrColor');
@@ -172,9 +173,6 @@ $(document).ready(function() {
 
 	//set variables
 	$(bodyBackground).val(template.globals.bodyBackground);
-	//$(bodyTextColor).val(template.globals.bodyTextColor);
-	//$(bodyLinkColor).val(template.globals.bodyLinkColor);
-	//$(bodyFontSize).val(template.globals.bodyFontSize);
 	$(ccBackground).val(template.globals.contentContainerBackground);
 	$(ccWidth).val(template.globals.contentContainerWidth);
 	$(ccPadding).val(template.globals.contentContainerPadding);
@@ -196,6 +194,10 @@ $(document).ready(function() {
 		template.setFocusedModule(null);
 		changeSettingsView(null);
 		$('.arrow-btn').hide();
+	});
+
+	$('.overlay').click(function(e) {
+		e.stopPropagation();
 	});
 
 	//defint event handlers
@@ -256,6 +258,19 @@ $(document).ready(function() {
 		$(moduleElement).click(moduleClick);
 	});
 
+	$(txtSaveBtn).click(function(){
+		var content = tinymce.activeEditor.getContent();
+		$('#' + template.getFocusedId() + ' > tbody > tr > td > div').html(content);
+		template.updateFocusedModule('text', content);
+		$('.overlay').fadeOut(function() {
+			tinymce.activeEditor.setContent('');
+		});
+	});
+	$(closeMceBtn).click(function() {
+		$('.overlay').fadeOut(function() {
+			tinymce.activeEditor.setContent('');
+		});
+	});
 	$(deleteBtn).click(function() {
 		template.removeFocusedModule();
 		changeSettingsView(null);
@@ -403,15 +418,15 @@ $(document).ready(function() {
 	//text parameter events
 	$(txtFntSize).change(function() {
 		template.updateFocusedModule('fontSize', $(this).val());
-		$('#' + template.getFocusedId() + ' tr td div').css('font-size', $(this).val() + 'px');
+		$('#' + template.getFocusedId() + ' > tbody > tr > td > div').css('font-size', $(this).val() + 'px');
 	});
 	$(txtFntColor).change(function() {
 		template.updateFocusedModule('fontColor', $(this).val());
-		$('#' + template.getFocusedId() + ' tr td div').css('color', '#' + $(this).val());
+		$('#' + template.getFocusedId() + ' > tbody > tr > td > div').css('color', '#' + $(this).val());
 	});
 	$(txtAlign).change(function() {
 		template.updateFocusedModule('alignment', $(this).val());
-		$('#' + template.getFocusedId() + ' tr td div').css('text-align', $(this).val());
+		$('#' + template.getFocusedId() + ' > tbody > tr > td > div').css('text-align', $(this).val());
 	});
 	$(txtBg).change(function() {
 		template.updateFocusedModule('backgroundColor', $(this).val());
@@ -421,7 +436,11 @@ $(document).ready(function() {
 		template.updateFocusedModule('containerPadding', $(this).val());
 		$('#' + template.getFocusedId()).css('padding', $(this).val() + 'px');
 	});
-
+	$(txtEditBtn).click(function() {
+		var content = $('#' + template.getFocusedId() + ' > tbody > tr > td > div').html();
+		tinymce.activeEditor.setContent(content);
+		$('.overlay').fadeIn();
+	});
 	//button parameter events
 	$(btnColor).change(function() {
 		template.updateFocusedModule('buttonColor', $(this).val());

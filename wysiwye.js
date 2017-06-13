@@ -16,9 +16,6 @@ function wysiwye(preview) {
 	this.modules = [];
 	this.globals = {
 		bodyBackground: '429AFF',
-		//bodyTextColor: '000000',
-		//bodyLinkColor: '1188e6',
-		//bodyFontSize: '14',
 		contentContainerBackground: 'FFFFFF',
 		contentContainerWidth: '600',
 		contentContainerPadding: '8',
@@ -43,8 +40,8 @@ function wysiwye(preview) {
 			fontColor: '000000',
 			alignment: 'left',
 			backgroundColor: 'FFFFFF',
-			containerPadding: '10',
-			html: '<table class="module" module="text" style="width: 100%; background: #FFFFFF; padding: 10px;"><tbody><tr><td><div style="width:100%;color: #000000;" contenteditable="true">Type something</div></td></tr></tbody></table>'
+			containerPadding: '0',
+			html: '<table class="module" module="text" style="width: 100%; background: #FFFFFF; padding: 0px;"><tbody><tr><td><div style="width:100%;color: #000000;" contenteditable="true">Type something</div></td></tr></tbody></table>'
 		};
 	};
 	this.getDefaultButton = function() {

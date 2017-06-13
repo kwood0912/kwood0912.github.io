@@ -159,7 +159,18 @@ html, body {
 	border: 2px solid #00F;
 }
 
-#deleteBtn {
+.btn-gray {
+	background: #eee;
+	columns: #222;
+	padding: 5px 8px;
+	text-align: center;
+	margin: 5px;
+	border: 2px solid #ccc;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.btn-red {
 	background: #f55;
 	color: #fff;
 	padding: 5px 8px;
@@ -170,11 +181,7 @@ html, body {
 	cursor: pointer;
 }
 
-#deleteBtn:hover {
-	background: #f88;
-}
-
-#saveBtn {
+.btn-green {
 	background: #5cb85c;
 	color: #fff;
 	padding: 5px 8px;
@@ -185,7 +192,7 @@ html, body {
 	cursor: pointer;
 }
 
-#loadBtn {
+.btn-blue {
 	background: #66f;
 	color: #fff;
 	padding: 5px 8px;
@@ -196,11 +203,19 @@ html, body {
 	cursor: pointer;
 }
 
-#saveBtn:hover {
+.btn-gray:hover {
+	background: #ddd
+}
+
+.btn-red:hover {
+	background: #f88;
+}
+
+.btn-green:hover {
 	background: #449d44;
 }
 
-#loadBtn:hover {
+.btn-blue:hover {
 	background: #88f;
 }
 
