@@ -95,11 +95,11 @@ function wysiwye(preview) {
 	};
 
 	this.body = preview; 
-	this.docHTML = '<div id="body"><center><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tbody><tr valign="top"><td></td></tr></tbody></table></center></div>';
-	this.ccHTML = '<center><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tbody><tr valign="top"><td></td></tr></tbody></table></center>';
+	this.docHTML = '<div id="body"><table cellpadding="0" cellspacing="0" border="0" style="width: 100%;height: 100%;padding:50px 0px;"><tbody><tr><td align="center" style="vertical-align: middle;"><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tbody><tr valign="top"><td style="vertical-align: top;"></td></tr></tbody></table></td></tr></tbody></table></div>';
+	this.ccHTML = '<table cellpadding="0" cellspacing="0" border="0" style="width: 100%;height: 100%;padding:50px 0px;"><tbody><tr><td align="center" style="vertical-align: middle;"><table id="contentContainer" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%;max-width: 600px;min-height: 400px;box-shadow: 2px 2px 3px rgba(0,0,0,0.6)" align="center"><tbody><tr><td style="vertical-align: top;"></td></tr></tbody></table></td></tr></tbody></table>';
 	$(this.body).html(this.ccHTML);
-	this.contentContainer = $('center table#contentContainer', this.body);
-	this.moduleContainer = $('center table#contentContainer > tbody > tr > td', this.body);
+	this.contentContainer = $('table#contentContainer', this.body);
+	this.moduleContainer = $('table#contentContainer > tbody > tr > td', this.body);
 
 	$(this.body).css('background', '#' + this.globals.bodyBackground);
 	$(this.body).css('color', '#' + this.globals.bodyTextColor);
@@ -406,10 +406,10 @@ wysiwye.prototype.saveTemplate = function(callback) {
 		'width': '100%',
 		'height': '100%',
 		'background': '#' + this.globals.bodyBackground,
-		'padding': '50px 0px'
+		'padding': '0px'
 	});
 	//set style rules for container
-	$('center table#contentContainer', doc).css({
+	$('table#contentContainer', doc).css({
 		'width': this.globals.contentContainerWidth + 'px',
 		'padding': this.globals.contentContainerPadding + 'px',
 		'background': '#' + this.globals.contentContainerBackground,
@@ -421,7 +421,7 @@ wysiwye.prototype.saveTemplate = function(callback) {
 		var modElem = $(mod.html);
 		modElem.attr('id', mod.id);
 		modElem = this.generateModuleMarkup(mod, modElem);
-		$('center table#contentContainer > tbody > tr > td', doc).append($(modElem).prop('outerHTML'));
+		$('table#contentContainer > tbody > tr > td', doc).append($(modElem).prop('outerHTML'));
 	}
 	var docStart = '<!DOCTYPE html><html style="width: 100%;height: 100%;margin: 0px;"><head><meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" /></head><body style="width: 100%;height: 100%;margin: 0px;">';
 	var docEnd = '</body></html>';
@@ -542,15 +542,9 @@ wysiwye.prototype.loadTemplate = function(html) {
 	var doc = $(html)[1];
 	$('.content-panel').append(doc);
 	this.body = $(doc);
-	this.contentContainer = $('center table#contentContainer', this.body);
-	this.moduleContainer = $('center table#contentContainer > tbody > tr > td', this.body);
+	this.contentContainer = $('table#contentContainer', this.body);
+	this.moduleContainer = $('table#contentContainer > tbody > tr > td', this.body);
 	this.updateGlobalSetting('bodyBackground', r2h($('#body').css('background-color')));
-	
-	//this.updateGlobalSetting('bodyTextColor', r2h($('#body').css('color')));
-	
-	//this.updateGlobalSetting('bodyLinkColor', r2h($('#body a').css('color')));
-	
-	//this.updateGlobalSetting('bodyFontSize', $('#body').css('font-size').replace('px', ''));
 	
 	this.updateGlobalSetting('contentContainerBackground', r2h($('#contentContainer').css('background-color')));
 
@@ -560,7 +554,7 @@ wysiwye.prototype.loadTemplate = function(html) {
 	
 	this.updateGlobalSetting('contentContainerShadow', $('#contentContainer').css('box-shadow') != 'none');
 	
-	var mods = $('center table#contentContainer > tbody > tr > td > table.module');
+	var mods = $('table#contentContainer > tbody > tr > td > table.module');
 	for (var i = 0; i < mods.length; i++) {
 		var e = mods[i];
 		this.loadModule($(e), this.modules);
